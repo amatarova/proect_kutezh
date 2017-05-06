@@ -1,0 +1,33 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r}
+library(jsonlite)
+library(tidyjson)  
+library(dplyr) 
+library(stringr) 
+
+dp = readLines("~/le_kutezh/businesses_2.txt")
+
+test = '
+http://www.dianping.com/shop/1567174 ^ {"0":"1567174","30":""}
+http://www.dianping.com/shop/1567273 ^ {"0":"1567273","30":""}
+'
+dp_e = stringr::str_c(dp, collapse = "\n")
+dp_e = stringr::str_replace_all(dp_e, "http\\:.*\\^ ", "")
+dp_e = stringr::str_replace_all(dp_e, "\\}\n\\{", "},{")
+dp_e = stringr::str_c("[", dp_e, "]")
+
+dp_p = jsonlite::fromJSON(dp_e)
+
+write.csv(dp_p, "dian_ping.csv" )
+```
+
+```{r}
+# load filtered data - only rests from beijing and shanghai
+dp_bs = read.csv("/students/dvchuprina/le_kutezh/dp_bs.csv")
+```
+
+

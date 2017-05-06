@@ -1,0 +1,57 @@
+
+# edit data
+```{r}
+library(stringr)
+
+rv = readLines("~/le_kutezh/reviews.txt")
+
+rv = rv[-1]
+rv = str_extract(rv, "(?<= \\^ ).*(?=$)")
+
+rv = str_c(rv, ",")
+rv = c("[", rv, "]")
+rv[4422474] = str_extract(rv[4422474], "(?<=^).*(?=\\,$)")
+
+writeLines(rv, "~/le_kutezh/reviews_edited.txt")
+```
+
+# read data
+```{r}
+# Read line by line
+tmp = readLines("~/le_kutezh/reviews_edited.txt")
+tmp = tmp[2:(length(tmp)-1)]
+
+iter = 1:(length(tmp)/1000)
+rv = list()
+
+for(i in iter[4099:length(iter)]){
+  iter_1 = 1 + (1000 * (i - 1))  
+  iter_2 = 1000 + (1000 * (i - 1))
+  iter_tmp = str_c(c("[", tmp[iter_1:iter_2], "]"), collapse = "")
+  rv_tmp = RJSONIO::fromJSON(iter_tmp)
+  rv_tmp = rv_tmp[1:1000]
+  rv = c(rv, rv_tmp)
+  
+  print(i)
+}
+
+iter_tmp = str_c(c("[", tmp[4422001:4422473], "]"), collapse = "")
+rv_tmp = RJSONIO::fromJSON(iter_tmp)
+rv_tmp = rv_tmp[1:473]
+rv = c(rv, rv_tmp)
+rm(tmp)
+
+# shanghai & beijing
+dp = read.csv("~/le_kutezh/dp_bs.csv")
+dp = dp$a[dp$d %in% c(1, 2)]
+
+rv = rv[sapply(rv, function(x){x$restId %in% dp})]
+```
+
+```{r}
+# осталось сохранить
+save(rv, file="~/le_kutezh/reviews_final.RData")
+# это как читать - тут  ревтю только по рестикам из пекина и шанхая
+load("/students/dvchuprina/le_kutezh/reviews_final.RData")
+```
+
