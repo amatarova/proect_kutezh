@@ -1,0 +1,41 @@
+```{r}
+library(plyr)
+library(dplyr)
+library(devtools)
+library(RCurl)
+source_url("https://gist.githubusercontent.com/Viktor13/3a8b613167091f8a4b66c6e180359186/raw/b340e6fcb9bd8fd80142d867ef4a9e6f5986c2d5/list_recursive_extraction.R")
+
+# Получаем код из приложения
+# http://wardoctor.nosoc.io/public/paulokopny/vkauth/karepin.html
+vk <- get.vk.connector(code = "7ddd606e5c19f24d35", app = "karepin", debug = T)
+```
+
+
+```{r}
+# loading reviews
+load("/students/dvchuprina/le_kutezh/reviews_final.RData")
+```
+
+```{r}
+test = list_recursive_extraction(rv[[1]])
+test = sapply(rv, function(x){ as.data.frame(t(list_recursive_extraction(x)), stringsAsFactors = F) } )
+
+# собираем датафрейм
+test_df = do.call(plyr::rbind.fill, test)
+
+# ура успех!
+View(test_df)
+a = head(test_df, n=30)
+```
+
+```{r}
+# оставляем только ид реста и ревью
+test_df1 = select(test_df, restId, content)
+write.csv(test_df1, "ch_rev.csv", row.names = F)
+```
+
+```{r}
+# чтобы подгружать остальным
+ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
+```
+
