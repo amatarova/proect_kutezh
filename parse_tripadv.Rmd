@@ -1,0 +1,135 @@
+
+```{r}
+library(rvest)
+library(stringr)
+```
+
+```{r hotels list}
+
+# пекин rest link <- "https://www.tripadvisor.ru/Restaurants-g294212-Beijing.html"
+# link  = "https://www.tripadvisor.ru/Restaurants-g294212-oa300-Beijing.html"
+#rest - beijing
+#rest2 - shanghai
+
+link <- "https://www.tripadvisor.ru/Restaurants-g294212-Beijing.html"
+rest = data.frame(stringsAsFactors = F)
+next_page_exist = TRUE
+p = 1
+
+while(next_page_exist){
+  page <- read_html(link)
+  
+  h.titles = page %>% html_nodes(xpath = "//h3[@class = 'title']/a") %>% html_text()
+  h.links = page %>% html_nodes(xpath = "//h3[@class = 'title']/a") %>% html_attr("href")
+  
+  
+  tmp = data.frame(h.links = h.links,
+                   h.titles = h.titles,
+                   stringsAsFactors = F)
+  
+  rest2 = plyr::rbind.fill(rest2, tmp)
+  
+  next_page = page %>% html_nodes(xpath = "//div[@class='unified pagination js_pageLinks']/a[@class='nav next rndBtn ui_button primary taLnk']") %>% html_attr("href")
+  
+  
+  if(length(next_page) == 0){
+    next_page_exist = FALSE
+  } else {
+    link = str_c("https://www.tripadvisor.ru", next_page)
+  }
+  
+  print(p)
+  p = p + 1
+}
+
+
+rest2 = rest2[!duplicated(rest2[,c("h.links", "h.titles")]),]
+ 
+rest2$h.links = str_c("https://www.tripadvisor.ru", rest2$h.links)
+
+```
+
+```{r hotels}
+result = list()
+
+for(i in 5294:nrow(rest)){
+  link = rest$h.links[i]
+  page = read_html(link)
+  
+  titles = page %>% html_nodes(xpath = "//h1[@id='HEADING']") %>% html_text() 
+  titles = titles %>% stringr::str_split("(?<=\\S)\n(?=[A-ZА-Я0-9])")
+  titles = str_replace_all(titles[[1]], "\n", "")
+  
+  # если выкидывает на рестораны пекина, переходим к следующему ресту
+  if(titles[1] == "Рестораны Пекина"){
+    result[[i]] = NA
+    next
+  }
+  
+  reviews_rating = page %>% html_nodes(xpath = '//div[@property = "aggregateRating"]//img') %>% html_attr("content") %>% str_replace(",", ".")
+  
+  address = page %>% html_nodes(xpath = '//span[@class="format_address"]')
+  address = address[[1]] %>% html_text()
+  
+  cuisine = page %>% html_nodes(xpath = '//div[@class="detail separator"]') %>% html_text() 
+  
+  reviews_counts = page %>% html_nodes(xpath = '//div[@id="taplc_prodp13n_hr_sur_review_filter_controls_0"]//div[@id="ratingFilter"]//label/span[2]') %>% html_text() %>% str_replace("\\n", "")
+  if(length(reviews_counts)>0){
+    names(reviews_counts) = c("Отлично", "Очень хорошо", "Неплохо", "Плохо", "Ужасно")
+  }
+    
+  reviews_type = page %>% html_nodes(xpath = '//div[@class="col segment extraWidth"]//label') %>% html_text() %>% str_extract("[0-9]+")
+  names(reviews_type) = page %>% html_nodes(xpath = '//div[@class="col segment extraWidth"]//label') %>% html_text() %>% str_extract(".*(?= \\()")
+  
+  reviews_lng = page %>% html_nodes(xpath = '//form[@class="moreLanguagesOverlay"]//label') %>% html_text() %>% str_extract("[0-9]+")
+  names(reviews_lng) = page %>% html_nodes(xpath = '//form[@class="moreLanguagesOverlay"]//label') %>% html_text() %>% str_replace_all("\\\n", "~") %>% str_extract(".*(?=\\~\\()")
+  
+  lng = page %>% html_nodes(xpath = '//div[@class="mapContainer"]') %>% html_attr("data-lng")
+  lat = page %>% html_nodes(xpath = '//div[@class="mapContainer"]') %>% html_attr("data-lat")
+  
+ 
+  price_min = page %>% html_nodes(xpath = '//div[contains(text(), "Средние цены")]/following-sibling::node()') %>% html_text() %>% str_extract("(?<=\\\n).*(?=\\u20bd)") %>% str_replace("\\u20bd", "") %>% str_replace_all("\\s", "")
+  price_min = price_min[2]
+  price_max = page %>% html_nodes(xpath = '//div[contains(text(), "Средние цены")]/following-sibling::node()') %>% html_text() %>% str_extract("(?<=\\-\\\n).*(?=\\u20bd)") %>% str_replace("\\u20bd", "") %>% str_replace_all("\\s", "") 
+   price_max = price_max[2]
+   
+  
+ com_rat = page %>% html_nodes(xpath = '//div[@class="ratingSummary wrap"]//span[@class="rate sprite-rating_s rating_s"]//img') %>% html_attr("alt") %>% str_extract(".*(?= из 5 кружков)")
+ 
+result[[i]] = list(link = rest$h.links[i],
+                     query_n = i,
+                     address = address,
+                     lng = lng,
+                     lat = lat,
+                     price_min = price_min,
+                     price_max = price_max,
+                     reviews_lng = reviews_lng,
+                     reviews_rating = reviews_rating,
+                     reviews_type = reviews_type,
+                   reviews_counts = reviews_counts,
+                   com_rat = com_rat,
+                   cuisine=cuisine
+                  )
+  
+  print(i)
+  
+  Sys.sleep(1)
+  if(i %% 50 == 0){
+    Sys.sleep(300)
+  }
+  
+}
+
+```
+
+```{r}
+library(RJSONIO)
+
+write(RJSONIO::toJSON(result), "result.json")
+write(RJSONIO::toJSON(result_c), "result_c.json")
+
+
+reading <- RJSONIO::fromJSON("result.json")
+reading2 <- RJSONIO::fromJSON("result_c.json")
+
+```
