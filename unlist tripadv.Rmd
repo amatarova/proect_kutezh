@@ -1,0 +1,50 @@
+
+# Shang
+```{r}
+shang1 <- RJSONIO::fromJSON("result_shang.json")
+shang2 <- RJSONIO::fromJSON("result3_shang.json")
+shang2 = shang2[3101:length(shang2)]
+
+lists = ls()
+lists = lists[str_detect(lists, "shang")]
+
+# собираем листы из окружения
+lists = lapply(lists, get)
+
+# убираем первый элемент с количеством комментов
+lists = lapply(1:length(lists), function(x){ lists[[x]][2:length(lists[[x]])] })
+
+# делаем данные одним сплошным листом, а не листом из листов
+shang = do.call(c, lists)
+```
+
+# parse list 
+```{r}
+shang = do.call(cbind, shang)
+shang = t(shang)
+shang[shang == "NULL"] <- NA
+shang[shang == "list()"] <- NA
+write.csv(shang, "shang.csv")
+```
+
+#Pekin
+```{r}
+pekin1 <- RJSONIO::fromJSON("result_pekin.json")
+pekin_c <- RJSONIO::fromJSON("result_c_pekin.json")
+
+```
+
+# parse list 
+```{r}
+pekin1 = do.call(cbind, pekin1)
+pekin1 = t(pekin1)
+pekin_c = do.call(cbind, pekin_c)
+pekin_c = t(pekin_c)
+pekin = cbind(pekin1, pekin_c)
+colnames(pekin) = c("link","query_n","address","lng","lat","price_min","price_max","reviews_lng","reviews_rating","reviews_type","reviews_counts","com_rat","cuisine2", "link2","cuisine")
+pekin$link2 = NULL
+pekin$cuisine2 = NULL
+pekin[pekin == "NULL"] <- NA
+pekin[pekin == "list()"] <- NAs
+write.csv(pekin, "pekin.csv")
+```
