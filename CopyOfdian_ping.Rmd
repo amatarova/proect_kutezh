@@ -28,6 +28,21 @@ write.csv(dp_p, "dian_ping.csv" )
 ```{r}
 # load filtered data - only rests from beijing and shanghai
 dp_bs = read.csv("/students/dvchuprina/le_kutezh/dp_bs.csv")
+
+
+dp_bs$r <- as.factor(dp_bs$r)
+dp_bs$w <- as.factor(dp_bs$w)
+no_lat <- filter(dp_bs, r== "1000", w=="1000")
+
+library(ggmap)
+colnames(no_lat)<-c("a","name","d","e","f","g","h", "address", "j", "k","l","p","r","w","x")
+no_lat$address<- as.vector(no_lat$address)
+#addresses = no_lat$address
+#addresses = paste0(addresses, ", China")
+addr <- geocode(no_lat$address)
+addr <- data.frame(cbind(no_lat$name, no_lat$address, addr))
+write.csv(addr, "unknown_addresses.csv")
+ 
 ```
 
 
