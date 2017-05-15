@@ -42,8 +42,53 @@ no_lat$address<- as.vector(no_lat$address)
 addr <- geocode(no_lat$address)
 addr <- data.frame(cbind(no_lat$name, no_lat$address, addr))
 write.csv(addr, "unknown_addresses.csv")
-#many NA still 
- 
 ```
+
+```{r}
+library(leaflet)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+unknown_addresses <- read_csv("/students/dvchuprina/proect_kutezh/unknown_addresses.csv")
+```
+
+```{r}
+ad = unknown_addresses
+ad = na.omit(ad)
+ad = filter(ad, no_lat.address != "多家连锁店")
+
+```
+
+```{r}
+st_popup <- paste0("<strong>lon: </strong>", 
+ad$lon, 
+"<br><strong>lat: </strong>", 
+ad$lat)
+
+m <- leaflet() %>%
+addTiles() %>%
+addMarkers(lng=ad$lon, lat=ad$lat, popup = st_popup)
+
+m
+```
+ 
+```{r}
+unknown_addresses[59, 4] = NA
+unknown_addresses[59, 5] = NA
+unknown_addresses[274, 4] = NA
+unknown_addresses[274, 5] = NA
+unknown_addresses[454, 4] = NA
+unknown_addresses[454, 5] = NA
+unknown_addresses[97, 4] = NA
+unknown_addresses[97, 5] = NA
+unknown_addresses[588, 4] = NA
+unknown_addresses[588, 5] = NA
+unknown_addresses[638, 4] = NA
+unknown_addresses[638, 5] = NA
+unknown_addresses <- unknown_addresses[-c(326), ] 
+```
+
 
 
