@@ -24,5 +24,7 @@ st_popup <- paste0("<strong>lon: </strong>",
 m <- leaflet() %>%
   addTiles() %>%
   addMarkers(lng=ad$lon, lat=ad$lat, popup = st_popup)
+
+m
 ```
 
