@@ -42,6 +42,7 @@ no_lat$address<- as.vector(no_lat$address)
 addr <- geocode(no_lat$address)
 addr <- data.frame(cbind(no_lat$name, no_lat$address, addr))
 write.csv(addr, "unknown_addresses.csv")
+#many NA still 
  
 ```
 
