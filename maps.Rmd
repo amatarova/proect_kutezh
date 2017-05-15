@@ -1,0 +1,28 @@
+```{r}
+library(leaflet)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+unknown_addresses <- read_csv("/students/dvchuprina/proect_kutezh/unknown_addresses.csv")
+```
+
+```{r}
+ad = unknown_addresses
+ad = na.omit(ad)
+ad = filter(ad, no_lat.address != "多家连锁店")
+
+```
+
+```{r}
+st_popup <- paste0("<strong>lon: </strong>", 
+                     ad$lon, 
+                      "<br><strong>lat: </strong>", 
+                     ad$lat)
+
+m <- leaflet() %>%
+  addTiles() %>%
+  addMarkers(lng=ad$lon, lat=ad$lat, popup = st_popup)
+```
+
