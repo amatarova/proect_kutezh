@@ -1,0 +1,78 @@
+
+```{r setup, include=FALSE}
+library(tidytext)
+library(ggplot2)
+library(tm)
+library(RColorBrewer)
+library(tidyr)
+library(dplyr)
+library(igraph)
+library(stringr)
+ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
+stop_words = read.table("~/proect_kutezh/stopwords-zh.txt")
+#tr_mcc_codes = tidyr::separate(tr_mcc_codes, mcc_codemcc_description, c("mcc_code", "mcc_description"), ";")
+names(stop_words)[1] = "word"
+rev_train <- data.frame(head(ch_rev,500))
+#stop_words <- stop_words[-(766), -(767), -(768), -(769), -(770), -(771), -(772), -(773), -(774), -(775), ] 
+rev_train$restId = rev_train$restId %>% as.factor()
+rev_train$content = rev_train$content %>% as.character()
+
+```
+
+Delaem bigrams don't know why
+```{r}
+bigrams = rev_train %>%
+    unnest_tokens(bigram, content, token = "ngrams", n = 2)
+
+bigrams_separated <- bigrams %>%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams_filtered <- bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+bigrams_counts <- bigrams_filtered %>% count(word1,word2,sort = TRUE)
+  
+# View(bigrams_counts)
+  
+bigrams_united <- bigrams_filtered %>%
+unite(bigram, word1, word2, sep = " ")
+
+# View(bigrams_united)
+
+bigram_tf_idf <- bigrams_united %>%
+  count(restId, bigram) %>%
+  bind_tf_idf(bigram, restId, n_col=n) %>%
+  arrange(desc(tf_idf))
+```
+оно работает, но не ясно что это
+
+дальше идет какая-то херь
+```{r}
+plot_bigram <- bigram_tf_idf %>% 
+  group_by(restId) %>% 
+  top_n(15) %>%
+  mutate(bigram = reorder(bigram, tf_idf))
+
+ggplot(plot_bigram, aes(bigram, tf_idf, fill = restId)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~restId, scales = "free") +
+  coord_flip()
+```
+correlation не вышла ошибка 
+```{r}
+library(widyr)
+
+reviews <- rev_train %>%
+  unnest_tokens(word, content) %>%
+  anti_join(stop_words)
+
+word_cors <- content() %>%
+  group_by(word) %>%
+  filter(n() > 30) %>%
+  pairwise_cor(word, id, sort = TRUE)
+```
+
+
+
