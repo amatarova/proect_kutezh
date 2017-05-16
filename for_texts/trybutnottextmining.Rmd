@@ -1,4 +1,4 @@
-
+gde ti
 ```{r setup, include=FALSE}
 library(tidytext)
 library(ggplot2)
