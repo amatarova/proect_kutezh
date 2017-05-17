@@ -1,0 +1,103 @@
+```{r setup, include=FALSE}
+library(tidytext)
+library(ggplot2)
+library(tm)
+library(RColorBrewer)
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(readr)
+library(stringdist)
+library(wordcloud)
+
+install.packages("Rwordseg", repos="http://R-Forge.R-project.org")
+library(Rwordseg)
+install.packages("tmcn", repos="http://R-Forge.R-project.org", type="source")
+library(tmcn)
+```
+
+```{r}
+ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
+rev_train <- data.frame(head(ch_rev,500))
+rm(ch_rev)
+
+stop_words = read.table("~/proect_kutezh/stopwords-zh.txt")
+#tr_mcc_codes = tidyr::separate(tr_mcc_codes, mcc_codemcc_description, c("mcc_code", "mcc_description"), ";")
+names(stop_words)[1] = "word"
+stop_words$word <- as.character(stop_words$word)
+
+#  готовые стоп-слова (removed 不，不是)
+stop = as.data.frame(stop_words[-c(24,41),])
+stop_w_ready = stop
+# write.csv(stop_w_ready, "stop_w_ready.csv", row.names = F)
+
+
+rev_train$restId = rev_train$restId %>% as.factor()
+rev_train$content = rev_train$content %>% as.character()
+
+```
+
+```{r}
+# install dictionnaries
+installDict("/students/dvchuprina/proect_kutezh/restaurantsdict.scel", dictname = "restdict")
+installDict("/students/dvchuprina/proect_kutezh/chinesefooddict.scel", dictname = "chfooddict")
+installDict("/students/dvchuprina/proect_kutezh/shanghaidict.scel", dictname = "shanghaidict")
+
+installDict("/students/dvchuprina/proect_kutezh/chatdict.scel", dictname = "chatdict")
+installDict("/students/dvchuprina/proect_kutezh/chengyudict.scel", dictname = "chengyudict")
+installDict("/students/dvchuprina/proect_kutezh/beijingdict.scel", dictname = "beijingdict")
+installDict("/students/dvchuprina/proect_kutezh/americanproductsdict.scel", dictname = "americanfooddict")
+
+installDict("/students/dvchuprina/proect_kutezh/products.scel", dictname = "productsict")
+installDict("/students/dvchuprina/proect_kutezh/greatcuisinedict.scel", dictname = "greatcuisinedict")
+
+installDict("/students/dvchuprina/proect_kutezh/food.scel", dictname = "fooddict")
+
+```
+
+
+
+```{r}
+#  creating a corpus (the first rest)
+rev_train1 <- data.frame(head(rev_train,14))
+rev_cor = Corpus(VectorSource(rev_train1$content), readerControl = list(reader = readPlain, language = "cn"))
+rev_cor <- tm_map(rev_cor, removePunctuation)
+rev_cor <- tm_map(rev_cor, removeNumbers)
+rev_cor <- tm_map(rev_cor, function(word) {
+    gsub("[A-Za-z0-9]", "", word)
+})
+
+# segmenting the text
+
+rev = lapply(rev_cor, function(x) unlist(segmentCN(x)))
+rest1 = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, language = "cn"))
+inspect(rest1)
+
+# removing stopwords
+
+# colnames(stop_w_ready)= "stopwords"
+# stop_w_ready$stopwords = as.character(stop_w_ready$stopwords)
+MyStopwords = str_c(stop_w_ready, sep = ",")
+
+rest2 = tm_map(rest1, removeWords, stopwordsCN())
+inspect(rest2)
+
+
+
+tdm <- DocumentTermMatrix(rest2)
+tdm= removeSparseTerms(tdm, 0.9)  # убирает редкие слова 
+inspect(t(tdm))
+
+findFreqTerms(tdm, 5)   #ищет частые слова
+
+findAssocs(t(tdm), "不", 0.5) #ищет частые употребления (вдруг пригодится)
+
+m1 = as.matrix(t(tdm))
+v <- sort(rowSums(m1), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F, 
+    colors = rainbow(length(row.names(m1))))
+
+# кодировки ставить лень сегодня
+
+```
