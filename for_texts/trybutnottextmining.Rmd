@@ -10,17 +10,16 @@ library(stringr)
 library(readr)
 
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
-stop_words = read.table("~/proect_kutezh/stopwords-zh.txt")
+stop_words = read.table("~/proect_kutezh/stop_w_ready.csv")
 #tr_mcc_codes = tidyr::separate(tr_mcc_codes, mcc_codemcc_description, c("mcc_code", "mcc_description"), ";")
-names(stop_words)[1] = "word"
-stop_words$word <- as.character(stop_words$word)
+#names(stop_words)[1] = "word"
+#stop_words$word <- as.character(stop_words$word)
 # write.csv(addr, "stop_words.csv")
-rev_train <- data.frame(head(ch_rev,500))
+#rev_train <- data.frame(head(ch_rev,500))
 
 write.csv(stop_words, "stop_words.csv")
 rev_train$restId = rev_train$restId %>% as.factor()
 rev_train$content = rev_train$content %>% as.character()
-
 ```
 
 ```{r}
