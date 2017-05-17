@@ -1,5 +1,7 @@
 gde ti
 ```{r setup, include=FALSE}
+install.packages("tmcn", repos="http://R-Forge.R-project.org", type="source")
+install.packages("Rwordseg", repos="http://R-Forge.R-project.org")
 library(tidytext)
 library(ggplot2)
 library(tm)
@@ -8,6 +10,8 @@ library(tidyr)
 library(dplyr)
 library(stringr)
 library(readr)
+library(tmcn)
+library(Rwordseg)
 
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
 stop_words = read.table("~/proect_kutezh/stop_w_ready.csv")
@@ -27,7 +31,44 @@ rev_train$content = rev_train$content %>% as.character()
 stop = as.data.frame(stop_words[-c(24,41),])
 stop_w_ready = stop
 write.csv(stop_w_ready, "stop_w_ready.csv", row.names = F)
+names(stop_w_ready)[1] = "word"
 ```
+из кит сайтика не работают пока, надо вставить словари тут
+```{r}
+
+words <- readLines("http://wubi.sogou.com/dict/download_txt.php?id=9182")
+words <- toTrad(words)
+insertWords(words)
+
+```
+
+500 reviews together and corpus
+```{r}
+rev_text <- paste(rev_train$content, collapse=" ")
+rev_source <- VectorSource(rev_text)
+corpus <- Corpus(rev_source, readerControl = list(reader=readPlain, language="cn"))
+
+corpus <- tm_map(corpus[1:100], segmentCN, nature = TRUE)
+corpus <- tm_map(corpus, function(sentence) {
+    noun <- lapply(sentence, function(w) {
+        w[names(w) == "n"]
+    })
+    unlist(noun)
+})
+corpus <- Corpus(VectorSource(corpus))
+```
+udalyaem stopwords
+```{r}
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- corpus %>%
+  filter(!word1 %in% stop_w_ready$word) %>%
+  filter(!word2 %in% stop_w_ready$word)
+stopwords <- c(stopwordsCN(), "編輯", "時間", "標題", "發信", "實業", "作者")
+head(stopwords, 20)
+corpus <- tm_map(corpus, removeWords, stopwords ('chinese'))
+```
+
 
 
 Delaem bigrams don't know why
