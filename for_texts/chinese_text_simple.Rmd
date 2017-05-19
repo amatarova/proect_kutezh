@@ -107,16 +107,16 @@ wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F,
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
 ch_rev$restId = as.numeric(ch_rev$restId)
 a = as.data.frame(unique(ch_rev$restId))
-a4 = as.data.frame(a[1001:2000,])
-colnames(a4) = "restId"
-a14 = left_join(a4, ch_rev, by = "restId")
+a11 = as.data.frame(a[11001:12000,])
+colnames(a11) = "restId"
+at11 = left_join(a11, ch_rev, by = "restId")
 
 func_paste <- function(x) paste(unique(x), collapse = ', ')
-a4 = a14 %>%
+a11 = at11 %>%
     group_by(restId) %>%
     summarise_each(funs(func_paste))
 
-write.csv(a4, "r1001_2000.csv", row.names = F)
+write.csv(a11, "r11_12.csv", row.names = F)
 
 ```
 
