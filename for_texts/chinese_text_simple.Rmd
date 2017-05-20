@@ -107,20 +107,22 @@ wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F,
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
 ch_rev$restId = as.numeric(ch_rev$restId)
 a = as.data.frame(unique(ch_rev$restId))
-a4 = as.data.frame(a[1001:2000,])
-colnames(a4) = "restId"
-a14 = left_join(a4, ch_rev, by = "restId")
+a5 = as.data.frame(a[8501:10000,])
+colnames(a5) = "restId"
+a15 = left_join(a5, ch_rev, by = "restId")
 
 func_paste <- function(x) paste(unique(x), collapse = ', ')
-a4 = a14 %>%
+a5 = a15 %>%
     group_by(restId) %>%
     summarise_each(funs(func_paste))
 
-write.csv(a4, "r1001_2000.csv", row.names = F)
+ write.csv(a5, "r8501_10000.csv", row.names = F)
 
 ```
 
 ```{r}
+# HAVING FUN WITH FIRST 100 RESTS
+a1 = first100
 rev_cor = Corpus(VectorSource(a1$content), readerControl = list(reader = readPlain, language = "cn"))
 rev_cor <- tm_map(rev_cor, removePunctuation)
 rev_cor <- tm_map(rev_cor, removeNumbers)
@@ -131,7 +133,34 @@ rev_cor <- tm_map(rev_cor, function(word) {
 # segmenting the text
 
 rev = lapply(rev_cor, function(x) unlist(segmentCN(x)))
-rest1 = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, language = "cn"))
-inspect(rest1)
+rest = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, encoding = "UTF-8", language = "cn"))
+inspect(rest[2])
+
+stopw = read.csv("/students/dvchuprina/proect_kutezh/stop_w_ready.csv")
+colnames(stopw) = "word"
+stop = str_c(stopw$word, sep = ",")
+
+mystop = c(stopwordsCN(), stop)
+rest2 = tm_map(rest, removeWords, mystop)
+inspect(rest2[2])
+
+tdm <- DocumentTermMatrix(rest2[3:6])
+tdm= removeSparseTerms(tdm, 0.9)  # убирает редкие слова 
+inspect(t(tdm))
+
+findFreqTerms(tdm, 5)   #ищет частые слова
+
+findAssocs(t(tdm), "不", 0.5) #ищет частые употребления (вдруг пригодится)
+
+m1 = as.matrix(t(tdm))
+v <- sort(rowSums(m1), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+wordcloud(d$word, d$freq, min.freq = 50, random.order = F, ordered.colors = F, colors = rainbow(length(row.names(m1))))
+
+```
+
+```{r}
+# BINDING ALL DATASETS TOGETHER
+rev_full_ready = rbind()
 ```
 
