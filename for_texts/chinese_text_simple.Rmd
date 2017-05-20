@@ -118,8 +118,8 @@ a5 = a15 %>%
     summarise_each(funs(func_paste))
 
  write.csv(a5, "r8501_10000.csv", row.names = F)
-=======
-a11 = as.data.frame(a[11001:12000,])
+# =======
+a11 = as.data.frame(a[12001:13000,])
 colnames(a11) = "restId"
 at11 = left_join(a11, ch_rev, by = "restId")
 
@@ -128,8 +128,10 @@ a11 = at11 %>%
     group_by(restId) %>%
     summarise_each(funs(func_paste))
 
+r12_13 = a11
+rm(r11_12)
 write.csv(a11, "r11_12.csv", row.names = F)
->>>>>>> 10b1c4b7fa56661eca49284f268b624575e71144
+
 
 ```
 
@@ -153,7 +155,7 @@ stopw = read.csv("/students/dvchuprina/proect_kutezh/stop_w_ready.csv")
 colnames(stopw) = "word"
 stop = str_c(stopw$word, sep = ",")
 
-mystop = c(stopwordsCN(), stop)
+mystop = c(stopwordsCN(), stop, "一下", "一份", "一块", "一定", "一家", "一层", "一年", "一张", "一次", "一点", "一碗", "一种", "一起", "一边", "一遍", "丁", "上来", "上班", "上面", "下次", "不", "不同", "不少", "不知", "不能", "不错", "天", "很多","现", "买", "值得","可能","看到", "经常", "里", "面", "加", "附近", "里面", "事", "两", "中午", "两个", "两种", "个人", "之前", "以前", "以后", "前", "卖", "对面", "没", "没有", "这家", "这", "家", "外面", "两层", "几种", "起来", "常常", "吃", "喜欢", "喝")
 rest2 = tm_map(rest, removeWords, mystop)
 inspect(rest2[2])
 
@@ -174,6 +176,12 @@ wordcloud(d$word, d$freq, min.freq = 50, random.order = F, ordered.colors = F, c
 
 ```{r}
 # BINDING ALL DATASETS TOGETHER
-rev_full_ready = rbind(first100, r101_500, r501_1000, r1001_2000, r2001_2500, r2501_3000, r3001_3501, r3501_5500, r5500-r8500, r8501_10000, r10001_11000, r11_12, )
+r16_20 = read.csv("/students/epdudka/proect_kutezh/r16_20.csv")
+
+r28_36 = read.csv("/students/epdudka/proect_kutezh/r28_36.csv")
+r14001_16000= read.csv("/students/amatarova/proect_kutezh/r14001_16000.csv")
+r20001_28000= read.csv("/students/amatarova/proect_kutezh/r20001_28000.csv")
+r10001_11000= read.csv("/students/amatarova/proect_kutezh/r10001_11000.csv")
+rev_full_ready = rbind(first100, r101_500, r501_1000, r1001_2000, r2001_2500, r2501_3000, r3001_3501, r3501_5500, r5500-r8500, r8501_10000, r10001_11000, r11_12, r12_13, r14001_16000, r16_20, r20001_28000, r28_36)
 ```
 
