@@ -107,6 +107,7 @@ wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F,
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
 ch_rev$restId = as.numeric(ch_rev$restId)
 a = as.data.frame(unique(ch_rev$restId))
+<<<<<<< HEAD
 a5 = as.data.frame(a[8501:10000,])
 colnames(a5) = "restId"
 a15 = left_join(a5, ch_rev, by = "restId")
@@ -117,6 +118,18 @@ a5 = a15 %>%
     summarise_each(funs(func_paste))
 
  write.csv(a5, "r8501_10000.csv", row.names = F)
+=======
+a11 = as.data.frame(a[11001:12000,])
+colnames(a11) = "restId"
+at11 = left_join(a11, ch_rev, by = "restId")
+
+func_paste <- function(x) paste(unique(x), collapse = ', ')
+a11 = at11 %>%
+    group_by(restId) %>%
+    summarise_each(funs(func_paste))
+
+write.csv(a11, "r11_12.csv", row.names = F)
+>>>>>>> 10b1c4b7fa56661eca49284f268b624575e71144
 
 ```
 
@@ -161,6 +174,6 @@ wordcloud(d$word, d$freq, min.freq = 50, random.order = F, ordered.colors = F, c
 
 ```{r}
 # BINDING ALL DATASETS TOGETHER
-rev_full_ready = rbind()
+rev_full_ready = rbind(first100, r101_500, r501_1000, r1001_2000, r2001_2500, r2501_3000, r3001_3501, r3501_5500, r5500-r8500, r8501_10000, r10001_11000, r11_12, )
 ```
 
