@@ -107,21 +107,22 @@ wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F,
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
 ch_rev$restId = as.numeric(ch_rev$restId)
 a = as.data.frame(unique(ch_rev$restId))
-a4 = as.data.frame(a[1001:2000,])
-colnames(a4) = "restId"
-a14 = left_join(a4, ch_rev, by = "restId")
+a20 = as.data.frame(a[20001:28000,])
+colnames(a20) = "restId"
+a21 = left_join(a20, ch_rev, by = "restId")
 
 func_paste <- function(x) paste(unique(x), collapse = ', ')
-a4 = a14 %>%
+a20 = a21 %>%
     group_by(restId) %>%
     summarise_each(funs(func_paste))
 
-write.csv(a4, "r1001_2000.csv", row.names = F)
+write.csv(a16, "r20001_28000.csv", row.names = F)
+
 
 ```
 
 ```{r}
-rev_cor = Corpus(VectorSource(a1$content), readerControl = list(reader = readPlain, language = "cn"))
+rev_cor = Corpus(VectorSource(a4$content), readerControl = list(reader = readPlain, language = "cn"))
 rev_cor <- tm_map(rev_cor, removePunctuation)
 rev_cor <- tm_map(rev_cor, removeNumbers)
 rev_cor <- tm_map(rev_cor, function(word) {
