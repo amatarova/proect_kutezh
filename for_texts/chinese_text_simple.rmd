@@ -1,0 +1,197 @@
+```{r setup, include=FALSE}
+library(tidytext)
+library(ggplot2)
+library(tm)
+library(RColorBrewer)
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(readr)
+library(stringdist)
+library(wordcloud)
+
+# install.packages("Rwordseg", repos="http://R-Forge.R-project.org")
+library(Rwordseg)
+# install.packages("tmcn", repos="http://R-Forge.R-project.org", type="source")
+library(tmcn)
+```
+
+```{r}
+ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
+rev_train <- data.frame(head(ch_rev,500))
+rm(ch_rev)
+
+stop_words = read.table("~/proect_kutezh/stopwords-zh.txt")
+#tr_mcc_codes = tidyr::separate(tr_mcc_codes, mcc_codemcc_description, c("mcc_code", "mcc_description"), ";")
+names(stop_words)[1] = "word"
+stop_words$word <- as.character(stop_words$word)
+
+#  готовые стоп-слова (removed 不，不是)
+stop = as.data.frame(stop_words[-c(24,41),])
+stop_w_ready = stop
+# write.csv(stop_w_ready, "stop_w_ready.csv", row.names = F)
+
+
+rev_train$restId = rev_train$restId %>% as.factor()
+rev_train$content = rev_train$content %>% as.character()
+
+```
+
+```{r}
+# install dictionnaries
+installDict("/students/dvchuprina/proect_kutezh/restaurantsdict.scel", dictname = "restdict")
+installDict("/students/dvchuprina/proect_kutezh/chinesefooddict.scel", dictname = "chfooddict")
+installDict("/students/dvchuprina/proect_kutezh/shanghaidict.scel", dictname = "shanghaidict")
+
+installDict("/students/dvchuprina/proect_kutezh/chatdict.scel", dictname = "chatdict")
+installDict("/students/dvchuprina/proect_kutezh/chengyudict.scel", dictname = "chengyudict")
+installDict("/students/dvchuprina/proect_kutezh/beijingdict.scel", dictname = "beijingdict")
+installDict("/students/dvchuprina/proect_kutezh/americanproductsdict.scel", dictname = "americanfooddict")
+
+installDict("/students/dvchuprina/proect_kutezh/products.scel", dictname = "productsict")
+installDict("/students/dvchuprina/proect_kutezh/greatcuisinedict.scel", dictname = "greatcuisinedict")
+
+installDict("/students/dvchuprina/proect_kutezh/food.scel", dictname = "fooddict")
+
+```
+
+
+
+```{r}
+#  creating a corpus (the first rest)
+rev_train1 <- data.frame(head(rev_train,14))
+rev_cor = Corpus(VectorSource(rev_train1$content), readerControl = list(reader = readPlain, language = "cn"))
+rev_cor <- tm_map(rev_cor, removePunctuation)
+rev_cor <- tm_map(rev_cor, removeNumbers)
+rev_cor <- tm_map(rev_cor, function(word) {
+    gsub("[A-Za-z0-9]", "", word)
+})
+
+# segmenting the text
+
+rev = lapply(rev_cor, function(x) unlist(segmentCN(x)))
+rest1 = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, language = "cn"))
+inspect(rest1)
+
+# removing stopwords
+
+# colnames(stop_w_ready)= "stopwords"
+# stop_w_ready$stopwords = as.character(stop_w_ready$stopwords)
+MyStopwords = str_c(stop_w_ready, sep = ",")
+
+rest2 = tm_map(rest1, removeWords, stopwordsCN())
+inspect(rest2)
+
+
+
+tdm <- DocumentTermMatrix(rest2)
+tdm= removeSparseTerms(tdm, 0.9)  # убирает редкие слова 
+inspect(t(tdm))
+
+findFreqTerms(tdm, 5)   #ищет частые слова
+
+findAssocs(t(tdm), "不", 0.5) #ищет частые употребления (вдруг пригодится)
+
+m1 = as.matrix(t(tdm))
+v <- sort(rowSums(m1), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F, 
+    colors = rainbow(length(row.names(m1))))
+
+# кодировки ставить лень сегодня
+
+```
+
+```{r}
+# creating a dataset, where reviews are grouped by restaurants (FUCKING SUCCESS)
+ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
+ch_rev$restId = as.numeric(ch_rev$restId)
+a = as.data.frame(unique(ch_rev$restId))
+a20 = as.data.frame(a[20001:28000,])
+colnames(a20) = "restId"
+a21 = left_join(a20, ch_rev, by = "restId")
+
+func_paste <- function(x) paste(unique(x), collapse = ', ')
+a20 = a21 %>%
+    group_by(restId) %>%
+    summarise_each(funs(func_paste))
+
+<<<<<<< HEAD
+ write.csv(a5, "r8501_10000.csv", row.names = F)
+# =======
+a11 = as.data.frame(a[20001:23000,])
+colnames(a11) = "restId"
+at11 = left_join(a11, ch_rev, by = "restId")
+
+func_paste <- function(x) paste(unique(x), collapse = ', ')
+r20_23 = at11 %>%
+    group_by(restId) %>%
+    summarise_each(funs(func_paste))
+
+r12_13 = a11
+rm(r11_12)
+write.csv(a11, "r11_12.csv", row.names = F)
+
+=======
+write.csv(a16, "r20001_28000.csv", row.names = F)
+
+>>>>>>> 747cde6e72fc20c75b6253b248d7a1dabb9b1881
+
+```
+
+```{r}
+rev_cor = Corpus(VectorSource(a4$content), readerControl = list(reader = readPlain, language = "cn"))
+rev_cor <- tm_map(rev_cor, removePunctuation)
+rev_cor <- tm_map(rev_cor, removeNumbers)
+rev_cor <- tm_map(rev_cor, function(word) {
+    gsub("[A-Za-z0-9]", "", word)
+})
+
+# segmenting the text
+
+rev = lapply(rev_cor, function(x) unlist(segmentCN(x)))
+<<<<<<< HEAD
+rest = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, encoding = "UTF-8", language = "cn"))
+inspect(rest[2])
+
+stopw = read.csv("/students/dvchuprina/proect_kutezh/stop_w_ready.csv")
+colnames(stopw) = "word"
+stop = str_c(stopw$word, sep = ",")
+
+mystop = c(stopwordsCN(), stop, "一下", "一份", "一块", "一定", "一家", "一层", "一年", "一张", "一次", "一点", "一碗", "一种", "一起", "一边", "一遍", "丁", "上来", "上班", "上面", "下次", "不", "不同", "不少", "不知", "不能", "不错", "天", "很多","现", "买", "值得","可能","看到", "经常", "里", "面", "加", "附近", "里面", "事", "两", "中午", "两个", "两种", "个人", "之前", "以前", "以后", "前", "卖", "对面", "没", "没有", "这家", "这", "家", "外面", "两层", "几种", "起来", "常常", "吃", "喜欢", "喝")
+rest2 = tm_map(rest, removeWords, mystop)
+inspect(rest2[2])
+
+tdm <- DocumentTermMatrix(rest2[3:6])
+tdm= removeSparseTerms(tdm, 0.9)  # убирает редкие слова 
+inspect(t(tdm))
+
+findFreqTerms(tdm, 5)   #ищет частые слова
+
+findAssocs(t(tdm), "不", 0.5) #ищет частые употребления (вдруг пригодится)
+
+m1 = as.matrix(t(tdm))
+v <- sort(rowSums(m1), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+wordcloud(d$word, d$freq, min.freq = 50, random.order = F, ordered.colors = F, colors = rainbow(length(row.names(m1))))
+
+```
+
+```{r}
+# BINDING ALL DATASETS TOGETHER
+r16_20 = read.csv("/students/epdudka/proect_kutezh/r16_20.csv")
+
+r28_36 = read.csv("/students/epdudka/proect_kutezh/r28_36.csv")
+r14001_16000= read.csv("/students/amatarova/proect_kutezh/r14001_16000.csv")
+r20001_28000= read.csv("/students/amatarova/proect_kutezh/r20001_28000.csv")
+r10001_11000= read.csv("/students/amatarova/proect_kutezh/r10001_11000.csv")
+rev_full_ready = rbind(rev_full_ready, r28_36)
+rev_full_ready = unique(rev_full_ready)
+r = na.omit(rev_full_ready)
+
+write.csv(r, "rev_full_ready.csv", row.names = F)
+rev_full_ready = read.csv("/students/dvchuprina/proect_kutezh/rev_full_ready.csv")
+
+
+```
+
