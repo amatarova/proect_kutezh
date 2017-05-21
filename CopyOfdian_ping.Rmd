@@ -51,7 +51,7 @@ library(dplyr)
 ```
 
 ```{r}
-unknown_addresses <- read_csv("/students/dvchuprina/proect_kutezh/unknown_addresses.csv")
+unknown_addresses <- read_csv("/students/amatarova/proect_kutezh/unknown_addresses.csv")
 ```
 
 ```{r}
@@ -73,7 +73,7 @@ addMarkers(lng=ad$lon, lat=ad$lat, popup = st_popup)
 
 m
 ```
- 
+ убираем рестики не в Шх и Пекине
 ```{r}
 unknown_addresses[59, 4] = NA
 unknown_addresses[59, 5] = NA
