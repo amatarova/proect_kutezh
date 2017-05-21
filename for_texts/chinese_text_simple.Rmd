@@ -107,16 +107,16 @@ wordcloud(d$word, d$freq, min.freq = 5, random.order = F, ordered.colors = F,
 ch_rev = read.csv("/students/dvchuprina/proect_kutezh/ch_rev.csv")
 ch_rev$restId = as.numeric(ch_rev$restId)
 a = as.data.frame(unique(ch_rev$restId))
-<<<<<<< HEAD
-a5 = as.data.frame(a[8501:10000,])
-colnames(a5) = "restId"
-a15 = left_join(a5, ch_rev, by = "restId")
+a20 = as.data.frame(a[20001:28000,])
+colnames(a20) = "restId"
+a21 = left_join(a20, ch_rev, by = "restId")
 
 func_paste <- function(x) paste(unique(x), collapse = ', ')
-a5 = a15 %>%
+a20 = a21 %>%
     group_by(restId) %>%
     summarise_each(funs(func_paste))
 
+<<<<<<< HEAD
  write.csv(a5, "r8501_10000.csv", row.names = F)
 # =======
 a11 = as.data.frame(a[20001:23000,])
@@ -132,13 +132,15 @@ r12_13 = a11
 rm(r11_12)
 write.csv(a11, "r11_12.csv", row.names = F)
 
+=======
+write.csv(a16, "r20001_28000.csv", row.names = F)
+
+>>>>>>> 747cde6e72fc20c75b6253b248d7a1dabb9b1881
 
 ```
 
 ```{r}
-# HAVING FUN WITH FIRST 100 RESTS
-a1 = first100
-rev_cor = Corpus(VectorSource(a1$content), readerControl = list(reader = readPlain, language = "cn"))
+rev_cor = Corpus(VectorSource(a4$content), readerControl = list(reader = readPlain, language = "cn"))
 rev_cor <- tm_map(rev_cor, removePunctuation)
 rev_cor <- tm_map(rev_cor, removeNumbers)
 rev_cor <- tm_map(rev_cor, function(word) {
@@ -148,6 +150,7 @@ rev_cor <- tm_map(rev_cor, function(word) {
 # segmenting the text
 
 rev = lapply(rev_cor, function(x) unlist(segmentCN(x)))
+<<<<<<< HEAD
 rest = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, encoding = "UTF-8", language = "cn"))
 inspect(rest[2])
 
@@ -187,6 +190,8 @@ rev_full_ready = unique(rev_full_ready)
 r = na.omit(rev_full_ready)
 
 write.csv(r, "rev_full_ready.csv", row.names = F)
-rev_full_ready = read.csv("/students/amatarova/proect_kutezh/rev_full_ready.csv")
+rev_full_ready = read.csv("/students/dvchuprina/proect_kutezh/rev_full_ready.csv")
+
+
 ```
 
