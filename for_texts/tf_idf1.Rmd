@@ -1,0 +1,101 @@
+--- 
+Unstage line	
+title: "tf_idf"
+output: html_document
+---
+Delaem bigrams don't know why
+
+```{r}
+library(tidytext)
+library(ggplot2)
+library(tm)
+library(RColorBrewer)
+library(tidyr)
+library(dplyr)
+library(stringr)
+library(readr)
+library(stringdist)
+library(wordcloud)
+library(tmcn)
+library(Rwordseg)
+library(tidytext)
+first100= read.csv("/students/amatarova/proect_kutezh/first100.csv")
+a1 = first100
+
+rev_cor = Corpus(VectorSource(a1$content), readerControl = list(reader = readPlain, language = "cn"))
+
+rev_cor <- tm_map(rev_cor, removePunctuation)
+rev_cor <- tm_map(rev_cor, removeNumbers)
+rev_cor <- tm_map(rev_cor, function(word) {
+gsub("[A-Za-z0-9]", "", word)
+})
+
+# segmenting the text
+rev = lapply(rev_cor, function(x) unlist(segmentCN(x)))
+rest = Corpus(VectorSource(rev), readerControl = list(reader = readPlain, encoding = "UTF-8", language = "cn"))
+inspect(rest[2])
+ 
+stopw = read.csv("/students/dvchuprina/proect_kutezh/stop_w_ready.csv")
+colnames(stopw) = "word"
+
+stop = str_c(stopw$word, sep = ",")
+
+mystop = c(stopwordsCN(), stop, "一下", "一份", "一块", "一定", "一家", "一层", "一年", "一张", "一次", "一点", "一碗", "一种", "一起", "一边", "一两片", "一个多", "一元", "一共", "一半一半", "一口", "一句", "一向", "一堆", "一墙之隔", "一批", "一把", "一斤", "一模一样", "一点点", "一瓶", "一盘", "一篇", "一群", "一致", "一行", "一道", "一间", "一阵", "一阵", "一遍", "丁", "上来", "上班", "上面", "下次", "不", "不同", "不少", "不知", "不能", "不错", "天", "很多","现", "买", "值得","可能","看到", "经常", "里", "面", "加", "附近", "里面", "事", "两", "中午", "两个", "两种", "个人", "之前", "以前", "以后", "前", "卖", "对面", "没", "没有", "这家", "这", "家", "外面", "两层", "几种", "起来", "常常", "吃", "喜欢", "喝", "边上", "份", "他家", "偏", "几个", "几乎", "几次", "出", "吃饭", "刚", "后来", "听", "回", "回来", "地方", "太", "朋友", "门", "门口", "层", "丢", "七十", "三个", "三四十", "三次", "三碗", "上去", "上次", "下去", "下来", "下降", "下面", "下饭", "不上了", "不住", "不准", "不够", "不大不小", "不易", "不用", "不知道了", "不算", "不要", "专", "专业", "专人", "两块", "两年", "两样", "两次", "两碗", "两面块", "丫头", "中等", "中间", "临时", "丸", "为主", "主要", "主题", "主食", "久", "之后", "乍", "九次", "也许", "习惯性", "二楼", "五份", "五块", "五种", "交叉口", "交涉", "交通", "人均", "人士", "人气", "什么时候","今天", "份量", "仿佛", "优缺点", "传统", "估计", "伴", "似", "似乎", "位", "位子", "位置", "住", "体现", "俗", "保", "倒", "倒是", "倒腾", "倒闭", "值", "做饭", "停", "停车", "停车位", "偶尔", "偶然", "元", "先", "先是", "光", "光顾", "入冬", "全", "八卦", "公", "公司", "关系", "其实", "具有", "再也", "写", "决定", "准备", "准确", "凑", "凑合", "几分钟", "几十年")
+
+mystop = c(mystop,"几十次", "几千", "几块", "几多", "几天", "几样", "凸", "出入", "分享", "分量", "切", "划算", "列为", "刚吃完", "初一", "制止", "刷", "前前后后", "前台", "前面", "办", "办公桌", "功", "加上", "加入", "十一", "十八块", "十字路口", "十次", "半", "半圆", "半天", "半左右", "半截", "单一", "单人", "单位", "印象", "压阵", "原因", "原来", "去呀", "去掉", "参加", "参观", "及时", "反", "反正", "反馈", "发", "发展", "发现", "发生", "发言", "受", "口", "句", "台", "吃啊", "同样", "名字", "听说", "吹", "告诉", "周", "周围", "呼", "品", "品吧", "品种", "响应", "哈哈哈哈哈", "哗啦", "唠叨", "唯一", "喉", "喔", "喝多了", "嗓子", "嗜", "嘟囔", "噔", "器皿", "嚼", "四五个", " 四十多", "四周", "回去", "回头", "一个点", "一半", "一回", "一盆", "占", "一丝", "一个个", "一会儿", "一位", "一刻", "一周", "一圈", "一天", "一头", "一度", "一座", "一晃", "一杯", "一桌", "一款", "一点一滴", "一点儿", "一片", "一股", "一般吧", "一般啊", "一英寸", "一贯", "一路", "一连串", "一颗", "万分", "三分", "三处", "三户", "上司", "上层", "上楼", "上班族", "上相", "上网", "下功夫", "下雨", "不一定", "不久", "不再" , "不变", "不可", "不大", "不得不", "不明", "不明白", "不知何故", "不管了", "不给看", "不肯", "不能自己", "不论是", "世界", "业务", "两三个", "两两", "两分钟", "两勺", "两口", "两周", "两天", "两家", "两杯", "两滴", "个个", "临街", "主动", "之外", "之间","乐趣", "书", "程度", "突然", "窗", "立", "站", "竟然", "端", "笑", "第一", "第一次", "第三", "第个", "第二次", "第四", "第二", "简直", "算", "算了", "店", "点", "环境", "特别", "比较", "觉得", "服务员", "坐", "少", "总体", "推荐", "差", "感觉", "普通", "真", "挺", "服务", "铁")
+mystop = c(mystop, "进去","这种","时间","进","布","摩","当时","走","累","非常","杯","逛","昨天","过来","已经","想","店面","总", "找","区","完","足","楼下","帮","改","送","速度","量","试","特","式","每次","沙","爱","沙发","钱","抹","知道","带","店员","座","老","基本","当日","干","现在", "话", "有点","座位","需要","换","大概","快","没什么","类","态度","装修","不以为然","强制","继续","充足","商","平常")
+write.csv(mystop, "mystop.csv", row.names = F)
+
+mystop = read.csv("/students/amatarova/proect_kutezh/mystop.csv")
+mystop$x = mystop$x %>% as.character() %>% str_trim()
+names(mystop)[1] = "word"
+
+rest2 = tm_map(rest, removeWords, mystop)
+inspect(rest2[2])
+ 
+d.dtm <- DocumentTermMatrix(rest2)
+d.dtm
+
+findFreqTerms(d.dtm, 100)
+findAssocs(d.dtm, "四川", 0.5) #correlation
+
+#tdm
+tdm1 <- TermDocumentMatrix(rest2, control = list(wordLengths = c(2, Inf)))
+m1 <- as.matrix(tdm1)
+v <- sort(rowSums(m1), decreasing = TRUE)
+d <- data.frame(word = names(v), freq = v)
+head(d,10)
+ 
+tf_idf1 = weightTfIdf(tdm1, normalize = TRUE)
+inspect(tf_idf1)
+
+a1$Docs <- 1:nrow(a1)
+tf_idf1$Docs <- as.numeric(tf_idf1$Docs)
+tf_idf_100 = left_join(a1, tf_idf1, by = "Docs")
+tf_idf_100$content <- NULL
+write.csv(tf_idf_100, "tf_idf_100.csv", row.names = F)
+
+#matrix ненужная инфа внизу
+library(quanteda)
+library(jsonlite)
+library(stringr)
+library(Matrix)
+ 
+docvars(rest, "restId") <- j$asin
+
+ 
+rest_dfm <- dfm(rest, ignoredFeatures = c(mystop), stem=TRUE, groups="restID")
+restTrim<-trim(rest, minCount=2, minDoc=2)
+ 
+amazon_tfidf <- tfidf(amazondfmTrim)
+head(amazon_tfidf)
+ 
+rest2 %>% 
+  bind_tf_idf()
+ 
+tdm <- DocumentTermMatrix(rest2[3:6])
+ 
+tdm= removeSparseTerms(tdm, 0.9)  # убирает редкие слова 
+inspect(t(tdm))
+ 
+```
