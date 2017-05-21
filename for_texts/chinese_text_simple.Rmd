@@ -119,12 +119,12 @@ a5 = a15 %>%
 
  write.csv(a5, "r8501_10000.csv", row.names = F)
 # =======
-a11 = as.data.frame(a[12001:13000,])
+a11 = as.data.frame(a[20001:23000,])
 colnames(a11) = "restId"
 at11 = left_join(a11, ch_rev, by = "restId")
 
 func_paste <- function(x) paste(unique(x), collapse = ', ')
-a11 = at11 %>%
+r20_23 = at11 %>%
     group_by(restId) %>%
     summarise_each(funs(func_paste))
 
@@ -182,6 +182,11 @@ r28_36 = read.csv("/students/epdudka/proect_kutezh/r28_36.csv")
 r14001_16000= read.csv("/students/amatarova/proect_kutezh/r14001_16000.csv")
 r20001_28000= read.csv("/students/amatarova/proect_kutezh/r20001_28000.csv")
 r10001_11000= read.csv("/students/amatarova/proect_kutezh/r10001_11000.csv")
-rev_full_ready = rbind(first100, r101_500, r501_1000, r1001_2000, r2001_2500, r2501_3000, r3001_3501, r3501_5500, r5500-r8500, r8501_10000, r10001_11000, r11_12, r12_13, r14001_16000, r16_20, r20001_28000, r28_36)
+rev_full_ready = rbind(rev_full_ready, r28_36)
+rev_full_ready = unique(rev_full_ready)
+r = na.omit(rev_full_ready)
+
+write.csv(r, "rev_full_ready.csv", row.names = F)
+rev_full_ready = read.csv("/students/amatarova/proect_kutezh/rev_full_ready.csv")
 ```
 
