@@ -1,0 +1,36 @@
+```{r}
+adresses <- read.csv("~/proect_kutezh/unknown_addresses.csv")
+library(ggmap)
+library(leaflet)
+library(readr)
+library(dplyr)
+library(jsonlite)
+library(tidyjson) 
+library(dplyr) 
+library(stringr)
+bad_ad <- subset(adresses, is.na(adresses$lon))
+colnames(bad_ad)<-c("a","name","address", "lon", "lat")
+bad_ad$name <- as.vector(bad_ad$name)
+bad_ad_geo <- geocode(bad_ad$name)
+bad_ad_geo <- data.frame(cbind(bad_ad$name, bad_ad$address, bad_ad_geo))
+
+#try to biuld map
+
+st_popup1 <- paste0("<strong>lon: </strong>", 
+bad_ad_geo$lon, 
+"<br><strong>lat: </strong>", 
+bad_ad_geo$lat)
+
+m <- leaflet() %>%
+addTiles() %>%
+addMarkers(lng=bad_ad_geo$lon, lat=bad_ad_geo$lat, popup = st_popup1)
+m
+
+bad_ad_geo <- bad_ad_geo[-c(142,249,176,24,30,168,274,130,15,150,28,145, 185,197,240,160,177,60,154,212,53,120,256,201,265,194,250,205,226,258,5,219,235,96,109,165,246,244,283,275,269,263,252,245,223,217,32,199,200,224,225,234,257,276),] 
+bad_ad_geo <- bad_ad_geo[-c(239,188,216,277,126,144,198,136,262,37,244,95,162,183,165,241,211,266,233,238,260,284,35,51,64,137,11,45,61,63,106,107,157,169,37,222,276,281,286,243,254,270,194,250,205,226,258,5,219,235,96,109,165,246,244,283,275,269,263,252,245,223,217),] 
+bad_ad_geo <- bad_ad_geo[-c(17,20,59,67,68,70,78,79,90,92,115,118,128,129,156,170,172,173,202,208,210,213,231,236,270),] 
+
+
+bad_ad_geo = na.omit(bad_ad_geo)
+```
+
