@@ -107,12 +107,24 @@ d <- data.frame(word = names(v), freq = v)
 wordcloud(d$word, d$freq, min.freq = 50, random.order = F, ordered.colors = F, colors = rainbow(length(row.names(m1))))
 
 
-ap_lda <- LDA(tdm, k = 70, control = list(seed = 1234))
+ap_lda <- LDA(tdm, k = 40, control = list(seed = 1234))
 ap_lda
 ap_topics <- tidy(ap_lda, matrix = "beta")
 ap_topics
 
-ap_topics1 <- filter(ap_topics,)
+ap_topics2 <- filter(ap_topics,topic == 2)#кофейня
+ap_topics4 <- filter(ap_topics,topic == 4)#остро хуогуо курица
+ap_topics8 <- filter(ap_topics,topic == 8)#сычуаньская кухня остро рыба 
+ap_topics9 <- filter(ap_topics,topic == 9)#пекарня ор самфин
+ap_topics16 <- filter(ap_topics,topic == 16)#кофейня ор самфин
+ap_topics18 <- filter(ap_topics,topic == 18)#пибимпап, мяско,каша
+ap_topics19 <- filter(ap_topics,topic == 19)#наркотреш с грушей и черепешками
+ap_topics20 <- filter(ap_topics,topic == 20)#супчик мяско начальник
+ap_topics25 <- filter(ap_topics,topic == 25)#вареные раки, овощи, няньгао
+ap_topics31 <- filter(ap_topics,topic == 31)#вилки,жар.кур. и компл.обед
+ap_topics35 <- filter(ap_topics,topic == 35)#курица
+ap_topics38 <- filter(ap_topics,topic == 38)#курица,торт,омлет,хлеб
+
 
 ap_top_terms <- ap_topics %>%
   group_by(topic) %>%
