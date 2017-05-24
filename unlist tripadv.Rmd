@@ -11,11 +11,30 @@ lists = lists[str_detect(lists, "shang")]
 # собираем листы из окружения
 lists = lapply(lists, get)
 
-# убираем первый элемент с количеством комментов
-lists = lapply(1:length(lists), function(x){ lists[[x]][2:length(lists[[x]])] })
-
 # делаем данные одним сплошным листом, а не листом из листов
 shang = do.call(c, lists)
+
+library(stringr)
+dt = data.frame(var1 = c('c("1", "2", "3")', 'c("1", "2", "3")', 'c("1", "2", "3")'),
+stringsAsFactors = FALSE)
+
+dt$var1 = str_replace_all(dt$var1, '\\(|\\)|c|\\"', '')
+dt_new = str_split_fixed(dt$var1, ",", n = 3)
+dt_new = as.data.frame(dt_new)
+names(dt_new) = str_c("var1_", 1:3)
+
+dt = cbind(dt, dt_new)
+
+dt
+
+shang$com_rat = str_replace_all(shang$com_rat, '\\(|\\)|c|\\"', '')
+dt_new = str_split_fixed(shang$com_rat, ",", n = 4)
+dt_new = as.data.frame(dt_new)
+names(dt_new) = str_c("com_rat", 1:3)
+
+dt = cbind(dt, dt_new)
+
+dt
 ```
 
 # parse list 
@@ -32,10 +51,17 @@ write.csv(shang, "shang.csv")
 pekin1 <- RJSONIO::fromJSON("result_pekin.json")
 pekin_c <- RJSONIO::fromJSON("result_c_pekin.json")
 
+library(jsonlite)
+j = readLines("result_pekin.json") %>% 
+str_c(collapse = ",") %>% 
+(function(str) str_c("[", str, "]")) %>% 
+fromJSON(simplifyDataFrame = T)
+
 ```
 
 # parse list 
 ```{r}
+
 pekin1 = do.call(cbind, pekin1)
 pekin1 = t(pekin1)
 pekin_c = do.call(cbind, pekin_c)
@@ -45,6 +71,80 @@ colnames(pekin) = c("link","query_n","address","lng","lat","price_min","price_ma
 pekin$link2 = NULL
 pekin$cuisine2 = NULL
 pekin[pekin == "NULL"] <- NA
-pekin[pekin == "list()"] <- NAs
+pekin[pekin == "list()"] <- NA
 write.csv(pekin, "pekin.csv")
+```
+
+```{r}
+library(stringr)
+
+dt = as.data.frame(pekin)
+
+dt$reviews_lng = str_replace_all(dt$reviews_lng, '\\(|\\)|c|\\"', '')
+dt_new = str_split_fixed(dt$reviews_lng, ",", n =19)
+dt_new = as.data.frame(dt_new)
+names(dt_new) = str_c("reviews_lng", 1:19)
+
+#Русский          Английский         Французский  Китайский (упрощ.) 
+              "824"               "972"                "71"                "64" 
+#Китайский (традиц.)           Испанский            Немецкий       Португальский 
+               "57"                "25"                "24"                "20" 
+#        Итальянский         Голландский            Японский           Корейский 
+               "19"                 "9"                 "9"                 "5" 
+ #        Норвежский             Датский           Греческий       Индонезийский 
+                "4"                 "2"                 "1"                 "1" 
+  #          Тайский             Чешский            Шведский 
+                "1"                 "1"                 "1" 
+dt = cbind(dt, dt_new)
+
+dt$reviews_type = str_replace_all(dt$reviews_type, '\\(|\\)|c|\\"', '')
+dt_new = str_split_fixed(dt$reviews_type, ",", n =5 )
+dt_new = as.data.frame(dt_new)
+names(dt_new) = str_c("reviews_type", 1:5)
+
+dt = cbind(dt, dt_new)
+#Для семей       Пары В одиночку     Бизнес С друзьями 
+     "116"      "303"       "24"       "89"      "203" 
+
+
+dt$reviews_counts = str_replace_all(dt$reviews_counts, '\\(|\\)|c|\\"', '')
+dt_new = str_split_fixed(dt$reviews_counts, ",", n =5 )
+dt_new = as.data.frame(dt_new)
+names(dt_new) = str_c("reviews_counts", 1:5)
+
+dt = cbind(dt, dt_new)
+#Отлично Очень хорошо      Неплохо        Плохо       Ужасно 
+       "683"         "97"         "27"         "13"          "4" 
+     
+     dt = cbind(dt, dt_new)
+
+dt_new = str_split_fixed(dt$com_rat, " ", n =4 )
+dt_new = as.data.frame(dt_new)
+names(dt_new) = str_c("com_rat", 1:4)
+dt_new$com_rat1 = gsub("[^[:alnum:]]", " ", dt_new$com_rat1)
+
+dt = cbind(dt, dt_new)
+
+#Питание  
+#Обслуживание  
+#Цена/качество  
+#Атмосфера
+```
+
+```{r}
+# сохраняем
+saveRDS(dt, "dt_test.rds")
+# читаем
+dt_reload <- readRDS("dt_test.rds")
+```
+
+```{r}
+for(i in 1:ncol(dt)){
+  dt[,i] = unlist(dt[,i]) 
+}
+
+dt = as.data.frame(dt)
+
+write.csv(dt, "dt.csv")
+dt_test = read.csv("dt_test.csv", stringsAsFactors = FALSE)
 ```
