@@ -1,0 +1,17 @@
+---
+title: "guys"
+author: "Alena Smirnova"
+date: "25 05 2017"
+output: html_document
+---
+
+```{r}
+rest <-c (6, 185, 18, 141, 107)
+italian <- c(4, 3, 3, 5, 5)
+russian <- c(5,5,5,3,5)
+american <- c(1,5,4,4,5)
+swedish <- c(5,1,5,5,5)
+german <- c(4,3,3,5,4)
+
+tab <- data.frame(Restaurant = rest, Italian = italian, Russian = russian, American = american, Swedish = swedish, German = german)
+```
