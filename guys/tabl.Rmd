@@ -6,12 +6,13 @@ output: html_document
 ---
 
 ```{r}
-rest <-c (6, 185, 18, 141, 107)
-italian <- c(4, 3, 3, 5, 5)
-russian <- c(5,5,5,3,5)
-american <- c(1,5,4,4,5)
-swedish <- c(5,1,5,5,5)
-german <- c(4,3,3,5,4)
+rest <-c (6, 185, 18, 141, 107, 135, 12,123, 117,150,157)
+italian <- c(4, 3, 3, 5, 5, 4,2,3,5,2,5)
+russian <- c(5,5,5,3,5,5,5,3,5,5,1)
+american <- c(1,5,4,4,5,3,5,4,4,5,2)
+swedish <- c(5,1,5,5,5,5,2,4,3,5,5)
+german <- c(4,3,3,5,4,3,3,2,4,4,2)
+spanish <- c(2,4,3,5,4,5,4,2,5,3,2)
 
-tab <- data.frame(Restaurant = rest, Italian = italian, Russian = russian, American = american, Swedish = swedish, German = german)
+tab <- data.frame(Restaurant = rest, Italian = italian, Russian = russian, American = american, Swedish = swedish, German = german, Spaniard = spanish)
 ```
