@@ -43,7 +43,7 @@ amazon2_topics
 library(ggplot2)
 library(dplyr)
 
-
+str(amazon2_topics)
 amazon2_top_terms <- amazon2_topics 
 amazon2_top_terms$topic <- as.numeric(amazon2_top_terms$topic)
 amazon2_top_terms <-  group_by(amazon2_top_terms$topic)
