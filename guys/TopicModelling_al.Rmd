@@ -13,7 +13,7 @@ docs = corpus(pekin_text$review_text)
 textdfm = quanteda::dfm(docs, what="word",
               tolower = TRUE, 
               remove_numbers = TRUE, remove_punct = TRUE,
-              remove = c(stopwords("english"), "place", "china", "u", "good", "restaurant", "food", "shanghai", "service", "one", "get", "can", "us", "menu", "two", "well", "made", "great", "time")) 
+              remove = c(stopwords("english"), "place", "china", "u", "good", "restaurant", "food", "great", "on", "in", "we", "to", "china", "asian", "service", "shanghai", "us")) 
 
 
 
@@ -22,11 +22,11 @@ dfmforTopics = convert(textdfm, to = "topicmodels")
 
 ### Построение модели
 
-Построим модель с 30 темами
+Построим модель с 40 темами
 
 ```{r message = FALSE}
 library(topicmodels)
-review40_lda <- LDA(dfmforTopics, k = 40, control = list(seed = 12345))
+review40_lda <- LDA(dfmforTopics, k = 40 , control = list(seed = 12345))
 review40_lda
 ```
 
