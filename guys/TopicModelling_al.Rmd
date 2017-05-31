@@ -1,18 +1,21 @@
 
 
 ```{r message = FALSE}
+
+library(readr)
+pekin_text <- read_csv("~/project/proect_kutezh/pekin_text.csv", 
+    col_types = cols(review_date = col_number()))
+View(pekin_text)
+
 library(quanteda)
 docs = corpus(pekin_text$review_text)
 
 textdfm = quanteda::dfm(docs, what="word",
               tolower = TRUE, 
               remove_numbers = TRUE, remove_punct = TRUE,
-              remove = c(stopwords("english"), "film", "movie")) 
+              remove = c(stopwords("english"), "place", "china", "u", "good", "restaurant", "food", "great", "on", "in", "we", "to", "china", "asian", "service", "shanghai", "us")) 
 
-# textdfm = quanteda::dfm(docs, what="word",
-#               toLower = TRUE, 
-#               removeNumbers = TRUE, removePunct = TRUE,
-#               ignoredFeatures = c(stopwords("english"), "film", "movie"))
+
 
 dfmforTopics = convert(textdfm, to = "topicmodels")
 ```
@@ -23,7 +26,7 @@ dfmforTopics = convert(textdfm, to = "topicmodels")
 
 ```{r message = FALSE}
 library(topicmodels)
-review40_lda <- LDA(dfmforTopics, k = 40, control = list(seed = 12345))
+review40_lda <- LDA(dfmforTopics, k = 40 , control = list(seed = 12345))
 review40_lda
 ```
 
@@ -44,17 +47,15 @@ library(ggplot2)
 library(dplyr)
 
 
-amazon2_top_terms <- amazon2_topics 
-amazon2_top_terms$topic <- as.numeric(amazon2_top_terms$topic)
-amazon2_top_terms <-  group_by(amazon2_top_terms$topic)
-amazon2_top_terms <-    top_n(10, beta)
-amazon2_top_terms <-    ungroup()
- amazon2_top_terms <-   arrange(topic, -beta)
+
+amazon2_topics$topic <- as.numeric(amazon2_topics$topic)
+amazon2_topics <-  group_by(amazon2_topics, topic)
+amazon2_topics <-    top_n(amazon2_topics, 10, beta)
+amazon2_topics <-    ungroup(amazon2_topics)
+amazon2_topics<-   arrange(amazon2_topics, topic, -beta)
  
- ??group_by
 
-
-amazon2_top_terms %>%
+amazon2_topics %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
