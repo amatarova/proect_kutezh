@@ -1,0 +1,128 @@
+
+
+```{r message = FALSE}
+
+library(readr)
+pekin_text <- read_csv("~/project/proect_kutezh/pekin_text.csv", 
+    col_types = cols(review_date = col_number()))
+View(pekin_text)
+
+library(quanteda)
+docs = corpus(pekin_text$review_text)
+
+textdfm = quanteda::dfm(docs, what="word",
+              tolower = TRUE, 
+              remove_numbers = TRUE, remove_punct = TRUE,
+              remove = c(stopwords("english"), "place", "china", "u", "good", "restaurant", "food", "shanghai", "service", "one", "get", "can", "us", "menu", "two", "well", "made", "great", "time", "will", "go", "just", "nice")) 
+
+
+
+dfmforTopics = convert(textdfm, to = "topicmodels")
+```
+
+### Построение модели
+
+Построим модель с 30 темами
+
+```{r message = FALSE}
+library(topicmodels)
+review40_lda <- LDA(dfmforTopics, k = 40, control = list(seed = 12345))
+review40_lda
+```
+
+### Тема как смесь слов
+
+Посмотрим на самые популярные слова в каждой теме. Для этого нам нужно сначала получить вероятности того, что слово относится к той или иной теме (per-topic-per-word probabilities), обозначаемые $\beta$ (*beta*)
+
+```{r message = FALSE}
+library(tidytext)
+amazon2_topics <- tidy(review40_lda, matrix = "beta")
+amazon2_topics
+```
+
+Посмотрим на популярные слова в каждой теме
+
+```{r message = FALSE}
+library(ggplot2)
+library(dplyr)
+
+
+
+amazon2_topics$topic <- as.numeric(amazon2_topics$topic)
+amazon2_topics <-  group_by(amazon2_topics, topic)
+amazon2_topics <-    top_n(amazon2_topics, 10, beta)
+amazon2_topics <-    ungroup(amazon2_topics)
+amazon2_topics<-   arrange(amazon2_topics, topic, -beta)
+ 
+
+amazon2_topics %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+```
+
+
+### Документы как смесь тем
+
+Посмотрим, как темы распределяются по отзывам. Получим вероятности того, что документ относится к той или иной теме (per-document-per-topic probabilities), обозначаемые $\gamma$ (*gamma*)
+
+```{r}
+amazon2_documents <- tidy(review40_lda, matrix = "gamma")
+amazon2_documents
+```
+
+text1, text2, ... -- это отзывы в том порядке, в каком они были при создании матрицы частот. Т.к. мы в первоначальном датасете с тех пор ничего не меняли, то для удобства и сопоставления добавим еще один столбец и объединим
+
+```{r}
+pekin_text$document = paste0("text", rownames(pekin_text))
+amazon2_documents  = left_join(amazon2_documents, pekin_text, by = "document")
+```
+
+Например, отзыв 400
+
+```{r}
+filter(amazon2_documents, document == "text400") %>% select(title, document, topic, gamma) 
+
+```
+
+Распределение отзывов по темам
+
+```{r}
+
+ggplot(data = amazon2_documents, aes(x = factor(topic), y = gamma)) +
+  geom_boxplot() +
+  facet_wrap(~ title)
+```
+
+
+**Ваша очередь:** 
+
+Скорее всего  для такого разнообразия текстов двух тем мало. Попробуйте выделить 5-7 тем. Как происходит разделение в этом случае?
+
+```{r}
+review5_lda <- LDA(dfmforTopics, k = 5, control = list(seed = 1234))
+
+amazon5_topics <- tidy(review5_lda, matrix = "beta")
+
+amazon5_top_terms <- amazon5_topics %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+amazon5_top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+```
+
+
+
+
+
+
+
