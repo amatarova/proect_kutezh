@@ -13,7 +13,7 @@ docs = corpus(pekin_text$review_text)
 textdfm = quanteda::dfm(docs, what="word",
               tolower = TRUE, 
               remove_numbers = TRUE, remove_punct = TRUE,
-              remove = c(stopwords("english"), "place", "china", "u", "good", "restaurant", "food", "shanghai", "service", "one", "get", "can", "us", "menu", "two", "well", "made", "great", "time", "will", "go", "just", "nice")) 
+              remove = c (stopwords("english"), stopwords("SMART"), "place", "china", "u", "good", "restaurant", "food", "shanghai", "service", "one", "get", "can", "us", "menu", "two", "well", "made", "great", "time", "will", "go", "just", "nice", "people", "staff", "came", "like", "try", "must", "recommend", "recommended", "day", "price", "also", "fun", "rmb", "always", "trip", "small", "trip", "atmosphere"))
 
 
 
@@ -26,7 +26,7 @@ dfmforTopics = convert(textdfm, to = "topicmodels")
 
 ```{r message = FALSE}
 library(topicmodels)
-review40_lda <- LDA(dfmforTopics, k = 40, control = list(seed = 12345))
+review40_lda <- LDA(dfmforTopics, k = 30, control = list(seed = 12345))
 review40_lda
 ```
 
@@ -36,7 +36,7 @@ review40_lda
 
 ```{r message = FALSE}
 library(tidytext)
-amazon2_topics <- tidy(review40_lda, matrix = "beta")
+amazon2_topics1 <- tidy(review40_lda, matrix = "beta")
 amazon2_topics
 ```
 
@@ -48,20 +48,39 @@ library(dplyr)
 
 
 
-amazon2_topics$topic <- as.numeric(amazon2_topics$topic)
-amazon2_topics <-  group_by(amazon2_topics, topic)
-amazon2_topics <-    top_n(amazon2_topics, 10, beta)
-amazon2_topics <-    ungroup(amazon2_topics)
-amazon2_topics<-   arrange(amazon2_topics, topic, -beta)
+amazon2_topics1$topic <- as.numeric(amazon2_topics1$topic)
+amazon2_topics1 <-  group_by(amazon2_topics1, topic)
+amazon2_topics1 <-    top_n(amazon2_topics1, 10, beta)
+amazon2_topics1 <-    ungroup(amazon2_topics1)
+amazon2_topics1<-   arrange(amazon2_topics1, topic, -beta)
  
 
-amazon2_topics %>%
+amazon2_topics1 %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
 ```
+
+###Адекватные топики
+Топики чисто по пекину
+1 - веганский
+2 - возможно мексиканская еда
+4 - французская
+5 - американские стейки
+6 - чисто италия, пицца, сыр
+7 - франция, десерты
+9 - вино. вино. винишко
+10 - местное, очень острое
+11 - турецкая
+13 - китайские пельмешки
+15 - салаты
+16 - испанская кухня
+18 - японские суши (бизнес)
+21 - чисто китайская, местная еда
+26 - сладкая уточка и курица
+27 - в питере пить, бары, выпивка
 
 
 ### Документы как смесь тем
@@ -83,8 +102,8 @@ amazon2_documents  = left_join(amazon2_documents, pekin_text, by = "document")
 Например, отзыв 400
 
 ```{r}
-filter(amazon2_documents, document == "text400") %>% select(title, document, topic, gamma) 
-
+filter(amazon2_documents, document == "text1") %>% select(title, document, topic, gamma) 
+x1 <- filter(amazon2_documents,gamma>0.064)
 ```
 
 Распределение отзывов по темам
