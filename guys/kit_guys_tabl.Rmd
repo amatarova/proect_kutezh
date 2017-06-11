@@ -4,22 +4,28 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-rest = read.csv("/students/dvchuprina/proect_kutezh/location.csv")
+rest <- read.csv("~/proect_kutezh/location.csv")
 ch_test = read.csv("/students/dvchuprina/proect_kutezh/ch_test.csv")
+names(rest) <- c("restId", "city", "tag")
+ch_test$restId = as.factor(ch_test$restId)
+rest$restId = as.factor(rest$restId)
+rest$tag = as.character(rest$tag)
+rest <- rest[c(1,3,15)]
 
 ch = left_join(ch_test, rest, by = "restId")
-kit_guys <- c (3326812, 5251044, 2638603, 5213409, 4217882, 3658510, 2011903, 1970962, 510194, 2861842, 2233750, 4544369, 4661835, 3681277, 4078867)
+kit_guys <- c (3326812, 5251044, 2638603, 5213409, 4217882, 3658510, 2011903, 1970962, 510194, 2861842, 2233750, 4544369, 4661835, 3681277, 4078867, 2066560, 1953784, 511003, 513052, 2103739, 2795662, 514403, 2859808, 515530, 507942)
 
-beijingren <- c(5, 5, 4, 5, 5, 3, 4, 5, 5, 5, 5, 4, 3, 3, 3)
-taiwanwoman <- c(4, 5, 4, 4, 3, 4, 5, 4, 4, 3, 4, 3, 4, 4, 3)
-fujianren <- c(4, 4, 5, 4, 4, 3, 4, 4, 4, 3, 3, 3, 5, 5, 3)
-georgii <- c(3, 3, 2, 5, 3, 5, 4, 2, 1, 2, 1, 1, 2, 3, 2)
-madrussian <- c(3, 2, 5, 3, 5, 3, 4, 2, 3, 4, 2, 1, 3, 5, 4)
+beijingren <- c(5, 5, 4, 5, 5, 3, 4, 5, 5, 5, 5, 4, 3, 3, 3, 5, 5, 3, 5, 4, 4, 5, 3, 5, 4)
+taiwanwoman <- c(4, 5, 4, 4, 3, 4, 5, 4, 4, 3, 4, 3, 4, 4, 3, 3, 3, 4, 4, 3, 5, 4, 4, 3, 5)
+fujianren <- c(4, 4, 5, 4, 4, 3, 4, 4, 4, 3, 3, 3, 5, 5, 3, 3, 4, 5, 4, 5, 4, 4, 4, 3, 5)
+georgii <- c(3, 3, 2, 5, 3, 5, 4, 2, 1, 2, 1, 1, 2, 3, 2, 2, 4, 3, 4, 2, 5, 3, 4, 2, 3)
+madrussian <- c(3, 2, 5, 3, 5, 3, 4, 2, 3, 4, 2, 1, 3, 5, 4, 5, 3, 2, 3, 4, 3, 5, 3, 5, 4)
 
 kit_guys <- data.frame(Restaurant = kit_guys, Beijing_ren = beijingren, Taiwan_crazy_woman = taiwanwoman, From_Fujian_love_it = fujianren, Georgii_estet = georgii, Mad_russian_Max = madrussian)
 
 write.csv(kit_guys, "kit_guys.csv", row.names = F)
 ```
+
 
 1879615 - 川菜	
 1893208 - 茶馆
