@@ -1,0 +1,35 @@
+```{r}
+library(dplyr)
+addresses <- read.csv("~/proect_kutezh/dp_bs1.csv")
+adresses <- read.csv("~/proect_kutezh/unknown_addresses.csv")
+
+seti_geo <- read.csv("~/proect_kutezh/seti_geo.csv")
+colnames(seti_geo)<-c("a","name","address", "lon", "lat")
+
+bad_ad <- subset(adresses, is.na(adresses$lon))
+bad_ad$name <- as.vector(bad_ad$name)
+bad_ad_geo <- geocode(bad_ad$name)
+bad_ad_geo <- data.frame(cbind(bad_ad$name, bad_ad$address, bad_ad_geo))
+bad_ad <- as.data.frame(bad_ad[,2], drop=false)
+
+colnames(adresses)<-c("a","name","address", "lon", "lat")
+addresses <- anti_join(addresses, adresses, by="name")
+
+addresses <- anti_join(addresses, seti_geo, by="name")
+
+addresses <- filter(addresseses, lat !=1000)                     
+addresses <- filter(addresses, lng !=1000)  
+addresses <- filter(addresses, name !="必胜客(龙湖星悦荟店)")
+addresses <- filter(addresses, name !="味千拉面(世博文化中心店)")
+addresses <- filter(addresses, address !="http://www.tencake.com")
+addresses <- filter(addresses, address !="www.ebeecake.com")
+addresses <- filter(addresses, address !="www.kincake.com")
+addresses <- filter(addresses, address !="www.tcake.cn(近泸定路)")
+addresses <- filter(addresses, address !="www.ucake.net")
+
+addresses$redtId = as.character(addresses$redtId)
+
+write.csv(addresses, "location.csv")
+
+#address <- addresses[c(1,2,8,13,14)]
+```
