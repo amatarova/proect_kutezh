@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-rest = read.csv("/students/amatarova/proect_kutezh/location.csv")
+rest = read.csv("/students/dvchuprina/proect_kutezh/location.csv")
 ch_test = read.csv("/students/dvchuprina/proect_kutezh/ch_test.csv")
 
 ch = left_join(ch_test, rest, by = "restId")
