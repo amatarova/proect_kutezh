@@ -4,7 +4,7 @@
 
 library(readr)
 pekin_text <- read_csv("~/project/proect_kutezh/pekin_text.csv", 
-    col_types = cols(review_date = col_number()))
+    col_types = cols(file = col_number(), review_date = col_number()))
 View(pekin_text)
 
 library(quanteda)
@@ -109,39 +109,62 @@ x1 <- filter(amazon2_documents,gamma>0.064)
 Распределение отзывов по темам
 
 ```{r}
+x2 <- filter(x1,number==1)
+x2 <- filter(x2,gamma==max(gamma))
+a1 <- data.frame(x2$number, x2$topic)
+rownames()
 
-ggplot(data = amazon2_documents, aes(x = factor(topic), y = gamma)) +
-  geom_boxplot() +
-  facet_wrap(~ title)
+
 ```
-
-
-**Ваша очередь:** 
-
-Скорее всего  для такого разнообразия текстов двух тем мало. Попробуйте выделить 5-7 тем. Как происходит разделение в этом случае?
+ШАНХАЙ
 
 ```{r}
-review5_lda <- LDA(dfmforTopics, k = 5, control = list(seed = 1234))
 
-amazon5_topics <- tidy(review5_lda, matrix = "beta")
+library(readr)
+p_rest_trip <- read_csv("~/project/proect_kutezh/p_rest_trip.csv", 
+    col_types = cols(file = col_number(), 
+        review_date = col_number(), review_stars = col_number()))
+View(p_rest_trip)
+docs1 = corpus(p_rest_trip$review_text)
 
-amazon5_top_terms <- amazon5_topics %>%
-  group_by(topic) %>%
-  top_n(10, beta) %>%
-  ungroup() %>%
-  arrange(topic, -beta)
+textdfm = quanteda::dfm(docs1, what="word",
+              tolower = TRUE, 
+              remove_numbers = TRUE, remove_punct = TRUE,
+              remove = c (stopwords("english"), stopwords("french"), stopwords("SMART"), "place", "china", "u", "good", "restaurant", "food", "shanghai", "service", "one", "get", "can", "us", "menu", "two", "well", "made", "great", "time", "will", "go", "just", "nice", "people", "staff", "came", "like", "try", "must", "recommend", "recommended", "day", "price", "also", "fun", "rmb", "always", "trip", "small", "trip", "atmosphere", "en", "pm", "excellent", "best", "beijin"))
+dfmforTopics1 = convert(textdfm, to = "topicmodels")
+review40_lda1 <- LDA(dfmforTopics1, k = 30, control = list(seed = 12345))
+amazon2_topics2 <- tidy(review40_lda1, matrix = "beta")
+amazon2_topics2$topic <- as.numeric(amazon2_topics2$topic)
+amazon2_topics2 <-  group_by(amazon2_topics2, topic)
+amazon2_topics2 <-    top_n(amazon2_topics2, 10, beta)
+amazon2_topics2 <-    ungroup(amazon2_topics2)
+amazon2_topics2<-   arrange(amazon2_topics2, topic, -beta)
+ 
 
-amazon5_top_terms %>%
+amazon2_topics2 %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
   facet_wrap(~ topic, scales = "free") +
   coord_flip()
+
+p_rest_trip<-transform(p_rest_trip, city="Beijing", xxx ="1")
+pekin_text<-transform(pekin_text, city="Shanghai", xxx="1")
+p_rest_trip <-select(p_rest_trip, -review_date)
+pekin_text <-select(pekin_text, -review_date, -X1,-number,-link,-title)
+p_rest_trip1 <-select(p_rest_trip, file, review_text)
+pekin_text1 <-select(pekin_text, number, review_text)
+
+aal <-rbind(pekin_text, p_rest_trip)
+
+
 ```
 
 
+рест-топик
 
+```{r}
 
-
-
-
+pekin_text <- (pekin_text)
+which.max(pekin_text, number=1, gamma)
+```
