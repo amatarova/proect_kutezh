@@ -149,13 +149,13 @@ amazon2_topics2 %>%
   coord_flip()
 
 p_rest_trip<-transform(p_rest_trip, city="Beijing", xxx ="1")
-pekin_text<-transform(pekin_text, city="Shanghai", xxx="1")
+pekin_text<-transform(pekin_text, city="Shanghai", document=1:9467)
 p_rest_trip <-select(p_rest_trip, -review_date)
 pekin_text <-select(pekin_text, -review_date, -X1,-number,-link,-title)
 p_rest_trip1 <-select(p_rest_trip, file, review_text)
 pekin_text1 <-select(pekin_text, number, review_text)
 
-aal <-rbind(pekin_text, p_rest_trip)
+
 
 
 ```
@@ -164,7 +164,49 @@ aal <-rbind(pekin_text, p_rest_trip)
 рест-топик
 
 ```{r}
+amazon2_documents <- tidy(review40_lda, matrix = "gamma")
+chapter_classifications <- amazon2_documents %>%
+  group_by(document) %>%
+  top_n(1) %>%
+  ungroup()
 
-pekin_text <- (pekin_text)
-which.max(pekin_text, number=1, gamma)
+write.csv(chapter_classifications, "chapter_classifications.csv", row.names = F)
+
+chapter_classifications <- read_csv("~/project/proect_kutezh/guys/chapter_classifications.csv", 
+    col_types = cols(document = col_number()))
+View(chapter_classifications)
+
+names(pekin_text)[names(pekin_text)=="two"] <- "topic"
+
+# Приводим все слова к нижнему регистру
+pekin_text$review_text = tolower(pekin_text$review_text)
+
+
+# Уберем всю пунктуацию
+pekin_text$review_text = stringr::str_replace_all(pekin_text$review_text, "[[:punct:]]", "")
+ # Убирем то, что осталось от кавычек и апострофа
+pekin_text$review_text = stringr::str_replace_all(pekin_text$review_text, "\\&quot\\;", " ")
+pekin_text$review_text = stringr::str_replace_all(pekin_text$review_text, "\\&apos\\;", " ") 
+
+pekin_text$review_text = as.character(pekin_text$review_text)
+pekin_text$file = as.character(pekin_text$file)
+
+y = select(pekin_text,review_text, file)
+
+func_paste <- function(x) paste(unique(x), collapse = ', ')
+a20 = y %>%
+group_by(file) %>%
+summarise_each(funs(func_paste))
+             
+chapter_classifications %>%
+  left_join(pekin_text, by = "document")
+
+```
+
+func_paste <- function(x) paste(unique(x), collapse = ', ')
+a20 = pekin_text %>%
+group_by(review_text) %>%
+summarise_each(funs(func_paste))
+write.csv(pekin_text, "shan.csv", row.names = F)
+
 ```
