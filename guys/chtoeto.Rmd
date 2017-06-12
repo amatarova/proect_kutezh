@@ -5,7 +5,7 @@
 
 
 library(quanteda)
-docs = corpus(a20$review_text)
+docs = corpus(a21$review_text)
 
 textdfm = quanteda::dfm(docs, what="word",
               tolower = TRUE, 
@@ -33,8 +33,8 @@ review40_lda
 
 ```{r message = FALSE}
 library(tidytext)
-amazon2_topics <- tidy(review40_lda, matrix = "beta")
-amazon2_topics
+amazon2_topics1 <- tidy(review40_lda, matrix = "beta")
+amazon2_topics1
 ```
 
 Посмотрим на популярные слова в каждой теме
@@ -45,14 +45,14 @@ library(dplyr)
 
 
 
-amazon2_topics$topic <- as.numeric(amazon2_topics$topic)
-amazon2_topics <-  group_by(amazon2_topics, topic)
-amazon2_topics <-    top_n(amazon2_topics, 10, beta)
-amazon2_topics <-    ungroup(amazon2_topics)
-amazon2_topics<-   arrange(amazon2_topics, topic, -beta)
+amazon2_topics1$topic <- as.numeric(amazon2_topics1$topic)
+amazon2_topics1 <-  group_by(amazon2_topics1, topic)
+amazon2_topics1 <-    top_n(amazon2_topics1, 10, beta)
+amazon2_topics1 <-    ungroup(amazon2_topics1)
+amazon2_topics1<-   arrange(amazon2_topics1, topic, -beta)
  
 
-amazon2_topics %>%
+amazon2_topics1 %>%
   mutate(term = reorder(term, beta)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
   geom_col(show.legend = FALSE) +
@@ -89,9 +89,11 @@ amazon2_topics %>%
 29 - пицца италия
 30 - бар италия
 
+Топики чисто по пекину
+
 
 ```{r}
-amazon2_documents <- tidy(review40_lda, matrix = "gamma")
+amazon2_documents1 <- tidy(review40_lda, matrix = "gamma")
 amazon2_documents
 ```
 
@@ -167,19 +169,63 @@ pekin_text1 <-select(pekin_text, number, review_text)
 рест-топик
 
 ```{r}
-amazon2_documents <- tidy(review40_lda, matrix = "gamma")
-chapter_classifications <- amazon2_documents %>%
+amazon2_documents1 <- tidy(review40_lda, matrix = "gamma")
+chapter_classifications1 <- amazon2_documents1 %>%
   group_by(document) %>%
   top_n(1) %>%
   ungroup()
 
-write.csv(chapter_classifications, "chapter_classifications.csv", row.names = F)
+write.csv(chapter_classifications1, "chapter_classifications1.csv", row.names = F)
 
-chapter_classifications <- read_csv("~/project/proect_kutezh/guys/chapter_classifications.csv", 
+chapter_classifications1 <- read_csv("~/project/proect_kutezh/guys/chapter_classifications1.csv", 
     col_types = cols(document = col_number()))
-View(chapter_classifications)
+View(chapter_classifications1)
 
-names(a20)[names(a20)=="file"] <- "document"
+names(a21)[names(a21)=="file"] <- "document"
+a21$document <-as.numeric(a21$document)
+beijing_topic <-left_join(a21, chapter_classifications1, by = "document")
+
+beijing_topic$topic[beijing_topic$topic == "1"] <- "self-serviсe buffet"
+beijing_topic$topic[beijing_topic$topic == "2"] <- "vegetarian restaurant"
+beijing_topic$topic[beijing_topic$topic == "3"] <- "Beijing duck" #новый тег
+beijing_topic$topic[beijing_topic$topic == "4"] <- "Italian cuisine"
+beijing_topic$topic[beijing_topic$topic == "16"] <- "Italian cuisine"
+beijing_topic$topic[beijing_topic$topic == "20"] <- "Italian cuisine"
+beijing_topic$topic[beijing_topic$topic == "6"] <- "Beijing duck" #новый тег
+beijing_topic$topic[beijing_topic$topic == "7"] <- "Indian cuisine"
+beijing_topic$topic[beijing_topic$topic == "12"] <- "Indian cuisine"
+beijing_topic$topic[beijing_topic$topic == "8"] <- "Chinese cuisine"
+beijing_topic$topic[beijing_topic$topic == "9"] <- "Japanese cuisine"
+beijing_topic$topic[beijing_topic$topic == "10"] <- "fastfood"
+beijing_topic$topic[beijing_topic$topic == "11"] <- "Chinese cuisine"
+beijing_topic$topic[beijing_topic$topic == "13"] <- "Beijing cuisine"
+beijing_topic$topic[beijing_topic$topic == "14"] <- "bar"
+beijing_topic$topic[beijing_topic$topic == "15"] <- "steakhouse"
+beijing_topic$topic[beijing_topic$topic == "17"] <- "hot pot house"
+beijing_topic$topic[beijing_topic$topic == "18"] <- "dumpling restaurant"
+beijing_topic$topic[beijing_topic$topic == "19"] <- "Western cuisine"
+beijing_topic$topic[beijing_topic$topic == "21"] <- "cafe"
+beijing_topic$topic[beijing_topic$topic == "22"] <- "Yunnan cuisine"
+beijing_topic$topic[beijing_topic$topic == "24"] <- "noodle house"
+beijing_topic$topic[beijing_topic$topic == "25"] <- "self-serviсe buffet"
+beijing_topic$topic[beijing_topic$topic == "26"] <- "vegetarian restaurant"
+beijing_topic$topic[beijing_topic$topic == "27"] <- "Beijing duck" #новый тег
+beijing_topic$topic[beijing_topic$topic == "29"] <- "Mexican cuisine"#новый тег"
+beijing_topic$topic[beijing_topic$topic == "30"] <- "fastfood"
+
+
+
+write.csv(beijing_topic, "beijing_topic.csv", row.names = F)
+
+
+
+
+
+
+
+
+
+
 
 shanghai_topic <-   left_join(a20, chapter_classifications, by = "document")
 
@@ -210,6 +256,7 @@ shanghai_topic$topic[shanghai_topic$topic == "27"] <- "Spanish cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "29"] <- "Italian cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "30"] <- "Italian cuisine"
 
+write.csv(shanghai_topic, "shanghai_topic.csv", row.names = F)
 
 
 
@@ -218,34 +265,24 @@ shanghai_topic$topic[shanghai_topic$topic == "30"] <- "Italian cuisine"
 
 
 
-
-
-
-
-
-
-
-
-a20$document <-as.numeric(a20$document)
-as.numeric(chapter_classifications$document)
 
 # Приводим все слова к нижнему регистру
-pekin_text$review_text = tolower(pekin_text$review_text)
+p_rest_trip$review_text = tolower(p_rest_trip$review_text)
 
 
 # Уберем всю пунктуацию
-pekin_text$review_text = stringr::str_replace_all(pekin_text$review_text, "[[:punct:]]", "")
+p_rest_trip$review_text = stringr::str_replace_all(p_rest_trip$review_text, "[[:punct:]]", "")
  # Убирем то, что осталось от кавычек и апострофа
-pekin_text$review_text = stringr::str_replace_all(pekin_text$review_text, "\\&quot\\;", " ")
-pekin_text$review_text = stringr::str_replace_all(pekin_text$review_text, "\\&apos\\;", " ") 
+p_rest_trip$review_text = stringr::str_replace_all(p_rest_trip$review_text, "\\&quot\\;", " ")
+p_rest_trip$review_text = stringr::str_replace_all(p_rest_trip$review_text, "\\&apos\\;", " ") 
 
-pekin_text$review_text = as.character(pekin_text$review_text)
-pekin_text$file = as.character(pekin_text$file)
+p_rest_trip$review_text = as.character(p_rest_trip$review_text)
+p_rest_trip$file = as.character(p_rest_trip$file)
 
-y = select(pekin_text,review_text, file)
+y = select(p_rest_trip,review_text, file)
 
 func_paste <- function(x) paste(unique(x), collapse = ', ')
-a20 = y %>%
+a21 = y %>%
 group_by(file) %>%
 summarise_each(funs(func_paste))
              
