@@ -69,6 +69,7 @@ amazon2_topics1 %>%
 5 - бар
 6 - пельмешки
 7 - здоровая еда
+8
 9 - джаз бар, музон
 10 - китайяская утка
 11 - кофе, ланч
@@ -192,9 +193,11 @@ beijing_topic$topic[beijing_topic$topic == "4"] <- "Italian cuisine"
 beijing_topic$topic[beijing_topic$topic == "16"] <- "Italian cuisine"
 beijing_topic$topic[beijing_topic$topic == "20"] <- "Italian cuisine"
 beijing_topic$topic[beijing_topic$topic == "6"] <- "Beijing duck" #новый тег
+beijing_topic$topic[beijing_topic$topic == "8"] <- "Chinese cuisine"
 beijing_topic$topic[beijing_topic$topic == "7"] <- "Indian cuisine"
 beijing_topic$topic[beijing_topic$topic == "12"] <- "Indian cuisine"
-beijing_topic$topic[beijing_topic$topic == "8"] <- "Chinese cuisine"
+beijing_topic$topic[beijing_topic$topic == "8"] <- "Chinese cuisine" 
+beijing_topic$topic[beijing_topic$topic == "5"] <- "Chinese cuisine" 
 beijing_topic$topic[beijing_topic$topic == "9"] <- "Japanese cuisine"
 beijing_topic$topic[beijing_topic$topic == "10"] <- "fastfood"
 beijing_topic$topic[beijing_topic$topic == "11"] <- "Chinese cuisine"
@@ -206,9 +209,11 @@ beijing_topic$topic[beijing_topic$topic == "18"] <- "dumpling restaurant"
 beijing_topic$topic[beijing_topic$topic == "19"] <- "Western cuisine"
 beijing_topic$topic[beijing_topic$topic == "21"] <- "cafe"
 beijing_topic$topic[beijing_topic$topic == "22"] <- "Yunnan cuisine"
+beijing_topic$topic[beijing_topic$topic == "23"] <- "Beijing duck"
 beijing_topic$topic[beijing_topic$topic == "24"] <- "noodle house"
 beijing_topic$topic[beijing_topic$topic == "25"] <- "self-serviсe buffet"
 beijing_topic$topic[beijing_topic$topic == "26"] <- "vegetarian restaurant"
+beijing_topic$topic[beijing_topic$topic == "28"] <- "hot pot house"
 beijing_topic$topic[beijing_topic$topic == "27"] <- "Beijing duck" #новый тег
 beijing_topic$topic[beijing_topic$topic == "29"] <- "Mexican cuisine"#новый тег"
 beijing_topic$topic[beijing_topic$topic == "30"] <- "fastfood"
@@ -236,6 +241,7 @@ shanghai_topic$topic[shanghai_topic$topic == "4"] <- "Turkish cuisine" #новы
 shanghai_topic$topic[shanghai_topic$topic == "5"] <- "bar"
 shanghai_topic$topic[shanghai_topic$topic == "6"] <- "dumpling restaurant"
 shanghai_topic$topic[shanghai_topic$topic == "7"] <- "Healthy" #новый тег
+shanghai_topic$topic[shanghai_topic$topic == "8"] <- "Chinese cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "9"] <- "Jazz bar"#новый тег
 shanghai_topic$topic[shanghai_topic$topic == "10"] <- "Chinese cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "11"] <- "cafe"
@@ -248,11 +254,14 @@ shanghai_topic$topic[shanghai_topic$topic == "17"] <- "Cantonese cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "18"] <- "Italian cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "19"] <- "Mexican cuisine"#новый тег
 shanghai_topic$topic[shanghai_topic$topic == "20"] <- "steakhouse"
+shanghai_topic$topic[shanghai_topic$topic == "21"] <- "dumpling restaurant"
 shanghai_topic$topic[shanghai_topic$topic == "22"] <- "Taiwanese cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "23"] <- "Turkish cuisine" #новый тег
+shanghai_topic$topic[shanghai_topic$topic == "24"] <- "bar"
 shanghai_topic$topic[shanghai_topic$topic == "25"] <- "Sichuan cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "26"] <- "Japanese cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "27"] <- "Spanish cuisine"
+shanghai_topic$topic[shanghai_topic$topic == "28"] <- "bar"
 shanghai_topic$topic[shanghai_topic$topic == "29"] <- "Italian cuisine"
 shanghai_topic$topic[shanghai_topic$topic == "30"] <- "Italian cuisine"
 
