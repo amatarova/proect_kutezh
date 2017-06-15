@@ -12,7 +12,7 @@ output: html_document
 # review_stars = col_number())) 
 
 
-trip_test <- read_csv("/students/dvchuprina/proect_kutezh/trip_test.csv")
+trip_test <- read_csv("/students/dvchuprina/proect_kutezh/guys/trip_test.csv")
 # trip_test = trip_test[!is.na(trip_test$tag),]
 # trip_test$query_n = as.character(trip_test$query_n)
 # link = as.data.frame(unique(trip_test$link))
@@ -20,8 +20,10 @@ trip_test <- read_csv("/students/dvchuprina/proect_kutezh/trip_test.csv")
 # names(link) = c("link","num")
 # 
 # trip_test = left_join(trip_test, link, by = "link")
-# 
-# write.csv(trip_test, "trip_test.csv", row.names = F)
+
+# write.csv(trip_test, "trip_t.csv", row.names = F)
+
+
 
 
 num <-c (322,288,383,114,186,52,303,315,11,213,351,387,158,39,160,246,299,384,304,151,324,404,183, 1,10,199,2,60,61,63,68,69,71)
@@ -51,5 +53,26 @@ func_paste <- function(x) paste(unique(x), collapse = ', ')
 a20 = y %>%
     group_by(file) %>%
     summarise_each(funs(func_paste))
+```
+
+
+```{r}
+#  для Кати теги
+trip_test <- read_csv("/students/dvchuprina/proect_kutezh/guys/trip_test.csv")
+# beijing_rests (query_n)
+p_rest_trip <- read_csv("~/proect_kutezh/p_rest_trip.csv", 
+    col_types = cols(file = col_number(), 
+        review_date = col_number(), review_stars = col_number()))
+# shanghai rests (file = query_n)
+s_t = read.csv("/students/dvchuprina/proect_kutezh/sh_trip_text.csv")
+
+new_tags = select(trip_test, link, query_n, city, num)
+new_tags = unique(new_tags)
+
+dudka_tag = select(new_tags, num)
+dudka_tag = dudka_tag[c(1:244),]
+
+dudka_tag$new_tag = c("")
+
 ```
 
